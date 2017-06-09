@@ -4,21 +4,14 @@
 
 
 void limpar_tela();
-<<<<<<< HEAD
-int menu();
-void jogo();
 
-=======
-void menu();
-void jogo();
->>>>>>> Adicionando arquivos para controle do projeto
+int menu();
+int jogo();
 
 
 int main(){
     int running = 1;
     int estado = 0; //0 = menu //1 = jogar
-<<<<<<< HEAD
-<<<<<<< HEAD
     //int cursor = 0; //posição do cursor
     
     while (running == 1){
@@ -30,25 +23,12 @@ int main(){
             
             case 1:
                 printf("COMEÇAR O JOGO\n");
-                jogo();
+                estado = jogo();
+                break;
             
             case 3:
                 running = 0; //quit -> finaliza o jogo
-=======
-    int cursor = 0; //posição do cursor
-=======
-    //int cursor = 0; //posição do cursor
->>>>>>> Adicionando arquivos para controle do projeto
-    
-    while (running == 1){
-        switch(estado){
-            case 0:
-                estado = menu();
                 break;
-            
-            case 1;
-                jogo();
->>>>>>> Adicionando arquivos para funcionalidade do projeto.
         }
 
     }
@@ -58,11 +38,10 @@ void limpar_tela(){
     printf("\e[1;1H\e[2J");
 }
 
-<<<<<<< HEAD
 int menu(){
-        int cursor; 
+        int cursor = 0; 
         
-        while(2 > 1){ //eternamente
+        while(1){ //eternamente
             printf("\n\n");
             if(cursor == 0) printf("->");
             printf("            JOGAR\n\n");
@@ -85,8 +64,9 @@ int menu(){
                     if(cursor == -1) cursor = 2;
                     cursor = cursor%3;
                     printf("%d", cursor);
+                    break;
                     
-                case '\n':
+                case ' ':
                     return cursor + 1;//retorna o estado
             }
             
@@ -96,44 +76,8 @@ int menu(){
         }
 }
 
-void jogo(){
+int  jogo(){
     printf("O JOGO\n");
-=======
-void menu(){
-        int cursor; 
-        printf("\n\n");
-        if(cursor == 0) printf("->");
-        printf("            JOGAR\n\n");
-        if(cursor == 1) printf("->");
-        printf("            RANKING\n\n");
-        if(cursor == 2) printf("->");
-        printf("            QUIT\n\n");
-        
-        char read;
-        read = getch();
-        //printf("EU RECEBI: %c", read);
-        switch(read){
-            case 's':
-                cursor++;
-                cursor = cursor%3;
-                printf("%d", cursor);
-                break;
-            case 'w':
-                cursor--;
-                if(cursor == -1) cursor = 2;
-                cursor = cursor%3;
-                printf("%d", cursor);
-                
-            case '\n':
-                return 1;
-        }
-        
-        
-        
-        limpar_tela();
+    return 0;
 }
 
-void jogo(){
-    printf("O JOGO");
->>>>>>> Adicionando arquivos para controle do projeto
-}
