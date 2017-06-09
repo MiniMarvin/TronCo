@@ -8,9 +8,11 @@ int menu();
 void jogo();
 
 
+
 int main(){
     int running = 1;
     int estado = 0; //0 = menu //1 = jogar
+<<<<<<< HEAD
     //int cursor = 0; //posição do cursor
     
     while (running == 1){
@@ -26,6 +28,18 @@ int main(){
             
             case 3:
                 running = 0; //quit -> finaliza o jogo
+=======
+    int cursor = 0; //posição do cursor
+    
+    while (running == 1){
+        switch(estado){
+            case 0:
+                estado = menu(cursor);
+                break;
+            
+            case 1;
+                jogo();
+>>>>>>> Adicionando arquivos para funcionalidade do projeto.
         }
 
     }
