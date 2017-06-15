@@ -53,6 +53,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include "../lib/client.h"
+#include "../v2.0/libTronco/tronco.h"
+#include "../v2.0/libTronco/allegroUsefull.h"
+
+// #define SIZE 50
 
 // Mapa utilizado para testar os algorítmos de decisão de caminho.
 const char testmap[][5] = {	{'a','0','0','B','0'},
@@ -66,6 +70,12 @@ void pegaMapa(char** map, int map_size);
 void buscaCaminho(char** map, int map_size, char player);
 void move();
 
+// Exibe uma tela 
+ALLEGRO_DISPLAY *display = NULL;
+
+// Evento de captura do teclado
+ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
+
 /**
  * @brief      Recebe e processa as funções referentes ao bot do jogo TronCo.
  *
@@ -77,35 +87,77 @@ void move();
 int main(int argc, char const *argv[]) {
 	
 	int map_size = 0, i, j;
+	int direcao; // Direção de movimento do bot
 	char** map;
-	
+
+	srand(time(NULL));
+
 	
 	// Recebe como argumento o tamanho do mapa.
-	if(argc >= 2) {
-	    map_size = atoi(argv[1]);
-	}
-	
+	// if(argc >= 2) {
+	//     map_size = atoi(argv[1]);
+	// }
+	 
+	map_size = SIZE;
+
 	//aloca memória para o mapa
 	map = (char**) malloc(sizeof(char*)*map_size);
 	for (i = 0; i < map_size; i++) {
 	    map[i] = (char*) malloc(sizeof(char)*map_size);
 	}
+
+	/*********************Conexão com o servidor************************/
+	clientMsg clientPackage;
+	serverMsg serverPackage;
+
+	//Esse IP irá nos conectar a "nós mesmos", apenas para efeito de testes.
+	char ServerIP[30]={"127.0.0.1"};
+	connectToServer(ServerIP);
+	/*******************************************************************/
 	
-	// Obtém o mapa atual do servidor.
-	pegaMapa(map, map_size);
+	/**************************Allegro**********************************/
+	if (!inicializar(&display, &fila_eventos)) {
+		return -1;
+	}
+
+	al_clear_to_color(al_map_rgb(10,50,30));
+	al_flip_display();
+	/*******************************************************************/
+
+	// Comunica com o servidor, calcula o passo e envia o movimento para
+	// o server.
+	while(1) {
+		// Obtém o mapa atual do servidor.
+		pegaMapa(map, map_size);
+		
+		/**
+		 * Comunica com o servidor e carrega o allegro.
+		 */
+		recvMsgFromServer(&serverPackage, DONT_WAIT);
+		printaMatriz(serverPackage.matriz);
+
+		// Realiza a busca pelo caminho a ser seguido.
+		// buscaCaminho(map, map_size);
+		
+		// Controla a movimentação do personagem.
+		// move();
+
+		// Realiza um movimento aleatório para testar o funcionamento do bot.
+		direcao = rand()%4;
+
+		// Evita morrer logo
+		while(direcao == 2) {
+			direcao = rand()%4;
+		}
+		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
+
+		sendMsgToServer(&clientPackage, sizeof(clientPackage));
+
+		al_rest(0.01);
+		al_flip_display();
+		// delay(100);
+	}
 	
-	for(i = 0; i < map_size; i++) {
-    	for(j = 0; j < map_size; j++) {
-    		printf("%c ", map[i][j]);
-    	}
-    	printf("\n");
-    }
-	
-	// Realiza a busca no grafo pelo caminho a ser seguido.
-	buscaCaminho(map, map_size);
-	
-	// Controla a movimentação do personagem.
-	move();
 	
 	return 0;
 }
@@ -122,21 +174,22 @@ int main(int argc, char const *argv[]) {
 void buscaCaminho(char** map, int map_size, char player) {
 	srand(time(NULL));
     int rand_move, pos_x, pos_y;
+    int i, j;
     
     for(i = 0; i < map_size; i++) {
     	for(j = 0; j < map_size; j++) {
     		if( map[i][j] == player ) {
     			pos_x = i;
-    			pos_y = y;
+    			pos_y = j;
     		}
     	}
     }
     
     //encontra um local ao redor do player onde o objetivo possa ser posto.
-    do {
-    	rand_move = rand()%8;
-    }
-    while( board_pos(map, pos_x, pos_y, rand_move) != '0' );
+    // do {
+    // 	rand_move = rand()%8;
+    // }
+    // while( board_pos(map, pos_x, pos_y, rand_move) != '0' );
     
     //encontra o caminho para o objetivo.
     
@@ -181,22 +234,30 @@ char board_pos(char** map, int pos_x, int pos_y, int rand_move) {
 }
 
 /**
- * @brief
+ * @brief       Obtém o mapa do servidor.
  * 
  * @param[In]   map         O endereço onde o mapa deverá ser armazenado
  * @param[In]   map_size    O tamanho do mapa.
  */
 void pegaMapa(char** map, int map_size) {
     int i, j;
-    
+    serverMsg serverPackage;
+
+    //recebendo a mensagem do servidor
+    //experimentem trocar WAIT_FOR_IT por DONT_WAIT...
+    recvMsgFromServer(&serverPackage, DONT_WAIT);
+
+
     for(i = 0; i < map_size; i++) {
     	for(j = 0; j < map_size; j++) {
-    		map[i][j] = testmap[i][j];
+    		// map[i][j] = testmap[i][j];
+    		map[i][j] = serverPackage.matriz[i][j];
     	}
     }
     
 }
 
 void move(){
+
 	
 }
