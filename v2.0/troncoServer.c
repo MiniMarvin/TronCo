@@ -1,10 +1,7 @@
 #include <stdio.h>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
 #include <stdbool.h>
 
 #include "libSocket/server.h"
-#include "libAllegro/AllegroCore.h"
 
 #include <time.h>
 
