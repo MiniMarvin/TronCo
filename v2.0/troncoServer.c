@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #include "libSocket/server.h"
@@ -8,6 +9,8 @@
 
 #define SIZE 50
 #define MAXCLIENTS 4 //Se ligar na biblioteca deles
+
+#define RESTART_GAME
 
 #define UP    0
 #define DOWN  1
@@ -30,6 +33,7 @@ typedef struct{
 }player;
 
 void delay(unsigned int mseconds);
+void cleanMatrix(char matrix[][SIZE], int player);
 
 int main(int argc, char **argv){
     
@@ -102,9 +106,39 @@ int main(int argc, char **argv){
             // Atualiza a última direção clicada
             buff_dir[i] = jogador[id].dir;
 
+            /********************************************************
+             * O Jogador atingiu a condição de morte                *
+             ********************************************************/
+            // Player acertou os limites do jogo
+            if( jogador[id].x >= SIZE || jogador[id].y >= SIZE ||
+              jogador[id].x < 0 || jogador[id].y < 0 ) {
+              disconnectClient(id);
+
+              #ifdef RESTART_GAME
+              // Remove o rastro do jogador do jogo.
+              cleanMatrix(matrizJogo, id);
+              // Recoloca o player em sua posição original do tabuleiro
+              jogador[id].x = 25;
+              jogador[id].y = 25;
+              jogador[id].dir = 1;
+              #endif
+            }
+
+            // Player acertou uma parede.
             if(matrizJogo[jogador[id].x][jogador[id].y] != '0'){
               disconnectClient(id);
-            }else{
+
+              #ifdef RESTART_GAME
+              // Remove o rastro do jogador do jogo.
+              cleanMatrix(matrizJogo, id);
+              // Recoloca o player numa posição qualquer do tabuleiro
+              jogador[id].x = 25;
+              jogador[id].y = 25;
+              jogador[id].dir = 1;
+              #endif
+            }
+            // Jogador continua vivo
+            else {
               // salvamos corpo + id, ja que 'a' + 1 = 'b'
               matrizJogo[jogador[id].x][jogador[id].y] = corpo + id;
             }
@@ -133,4 +167,14 @@ int main(int argc, char **argv){
 void delay(unsigned int mseconds){
     clock_t goal = mseconds + clock();
     while (goal > clock());
+}
+
+void cleanMatrix(char matrix[][SIZE], int player) {
+  for (int i = 0; i < SIZE; ++i) {
+    for (int j = 0; j < SIZE; ++j) {
+      if(matrix[i][j] == 'a' + player || matrix[i][j] == 'A' + player) {
+        matrix[i][j] = '0';
+      }
+    }
+  }
 }
