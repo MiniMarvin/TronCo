@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "highscore.h"
 
-
 FILE* organizateData(FILE* arq, data* banco_Dados, int limit) {
 	
 	int i = 0, j = 0, aux = 1;
@@ -82,7 +81,7 @@ void getData(FILE* arq) {
  * @param      banco_Dados  O banco de dados que armazenará essas informações
  * @param      limit        Quantas informações foram lidas
  */
-void readData(FILE* arq, data* banco_Dados, int* limit) {
+void readData(FILE* arq, data* banco_Dados, int limit) {
 
 
 	//Move o cursor para o início do arquivo
@@ -93,20 +92,10 @@ void readData(FILE* arq, data* banco_Dados, int* limit) {
 	char nome[50];
 	
 	// Lê as informações formatadas no seguinte estilo até encontrar o fim do arquivo
-	while(fscanf(arq, "%d %s %d\n", &banco_Dados[i].id, banco_Dados[i].nome, &banco_Dados[i].score) != EOF) {
+	while(i < limit && fscanf(arq, "%d %s %d\n", &banco_Dados[i].id, banco_Dados[i].nome, &banco_Dados[i].score) != EOF) {
 		
-		// fscanf(arq, "%d %s %d\n", &id, nome, &score) != EOF
-		// Copia os dados para um banco de dados no programa
-		// banco_Dados[i].id = id;
-		// strcpy(banco_Dados[i].nome, nome);
-		// banco_Dados[i].score = score;
-		
-		// Debug
-		// printf("%d %s %d\n", id, nome, score);
-		// printf("I: %d\n", i);
 		i++;
 	}
-	*(limit) = i;
 	
 	//Debug
 	printf("Lido!\n");
