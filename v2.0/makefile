@@ -20,7 +20,7 @@ compClient:
 	gcc -std=c99 -o $(clientName) $(clientFile).c $(dependencies)  libAllegro/AllegroCore.c libSocket/client.c -lallegro -lallegro_image -lallegro_primitives -lallegro_font -lallegro_ttf 
 
 compServer:
-	gcc -std=c99 -o $(serverName) $(serverFile).c libSocket/server.c -lallegro -lallegro_image -lallegro_primitives -lallegro_font -lallegro_ttf 
+	gcc -std=c99 -o $(serverName) $(serverFile).c libSocket/server.c
 
 runClient:
 	./$(clientName)
