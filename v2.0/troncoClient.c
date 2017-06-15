@@ -6,6 +6,8 @@
 #include "libSocket/client.h"
 #include "libAllegro/AllegroCore.h"
 
+#include <time.h>
+
 #define AZUL al_map_rgb(22, 55, 132)
 #define VERMELHO al_map_rgb(250, 120, 255)
 #define JOGADOR1 al_map_rgb(168, 11, 77)
@@ -24,6 +26,7 @@ typedef struct{
 
 void printaMatriz(char matriz[SIZE][SIZE]);
 bool inicializar();
+void delay(unsigned int mseconds);
 
 // Exibe uma tela 
 ALLEGRO_DISPLAY *display = NULL;
@@ -36,7 +39,7 @@ int main(int argc, char **argv){
     bool sair = false;
     int tecla = 0;
     int posX = 20, posY = 20;
-    int direcao = 1;
+    int direcao = 1, buff_direcao = 1;
     int i, j; 
     int sizeQuadrado = 8;// matrizQuadrado[600][480];
     int xInicial = 2, yInicial = 2;
@@ -58,7 +61,7 @@ int main(int argc, char **argv){
    while (!sair){
       printf("OI\n");
       while(!al_is_event_queue_empty(fila_eventos)){
-       printf("OI");
+          printf("KEY PRESSED\n");
           ALLEGRO_EVENT evento;
           al_wait_for_event(fila_eventos, &evento);
 
@@ -82,6 +85,7 @@ int main(int argc, char **argv){
               sair = true;
           }
       }
+
       if(tecla){
           switch (tecla){
           case 1:
@@ -101,8 +105,10 @@ int main(int argc, char **argv){
       }
 
       clientPackage.dir = direcao;
+
       //enviando a mensagem
       sendMsgToServer(&clientPackage, sizeof(clientPackage));
+
       //recebendo a mensagem
       //experimentem trocar WAIT_FOR_IT por DONT_WAIT...
       recvMsgFromServer(&serverPackage, DONT_WAIT);
@@ -194,3 +200,9 @@ void printaMatriz(char matriz[][SIZE]){
    }
 }
 
+
+
+void delay(unsigned int mseconds){
+    clock_t goal = mseconds + clock();
+    while (goal > clock());
+}

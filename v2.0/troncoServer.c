@@ -12,6 +12,11 @@
 #define SIZE 50
 #define MAXCLIENTS 4 //Se ligar na biblioteca deles
 
+#define UP    0
+#define DOWN  1
+#define LEFT  2
+#define RIGHT 3
+
 typedef struct{
   int dir;
 }clientMsg;
@@ -31,12 +36,17 @@ void delay(unsigned int mseconds);
 
 int main(int argc, char **argv){
     
-   char corpo = 'a';
-   char cabeca = 'A';
+    char corpo = 'a';
+    char cabeca = 'A';
 
     bool sair = false;
     int tecla = 0;
     int i, j; 
+    int buff_dir[MAXCLIENTS]; // Buffer de direção do jogador
+    // inicializa com a direção inicial de cada player.
+    for (i = 0; i < MAXCLIENTS; ++i) {
+      buff_dir[i] = 1;
+    }
 
     player jogador[MAXCLIENTS];
     jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = 1;
@@ -70,6 +80,13 @@ int main(int argc, char **argv){
         if(retorno.status == MESSAGE_OK){
             id = retorno.client_id;
             jogador[id].dir = clientPackage.dir;
+
+            //impede o jogador de virar para trás.
+            if(jogador[id].dir == UP && buff_dir[i] == DOWN) jogador[id].dir = DOWN;
+            if(jogador[id].dir == LEFT && buff_dir[i] == RIGHT) jogador[id].dir = RIGHT;
+            if(jogador[id].dir == DOWN && buff_dir[i] == UP) jogador[id].dir = UP;
+            if(jogador[id].dir == RIGHT && buff_dir[i] == LEFT) jogador[id].dir = LEFT;
+
             switch(jogador[id].dir){
               case 0:
                   jogador[id].x--;
@@ -84,6 +101,9 @@ int main(int argc, char **argv){
                   jogador[id].y++;
                   break;
             }
+
+            // Atualiza a última direção clicada
+            buff_dir[i] = jogador[id].dir;
 
             if(matrizJogo[jogador[id].x][jogador[id].y] != '0'){
               disconnectClient(id);
@@ -104,8 +124,11 @@ int main(int argc, char **argv){
               }
               //printf("\n");
             }
+            
             sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
         }
+
+        
     }
    return 0;
 }
