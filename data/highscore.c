@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "highscore.h"
 
-
 FILE* organizateData(FILE* arq, data* banco_Dados, int limit) {
 	
 	int i = 0, j = 0, aux = 1;
@@ -93,8 +92,8 @@ void readData(FILE* arq, data* banco_Dados, int* limit) {
 	char nome[50];
 	
 	// Lê as informações formatadas no seguinte estilo até encontrar o fim do arquivo
-	while(fscanf(arq, "%d %s %d\n", &banco_Dados[i].id, banco_Dados[i].nome, &banco_Dados[i].score) != EOF) {
-		
+	while(i < limit) {
+		fscanf(arq, "%d %s %d\n", &banco_Dados[i].id, banco_Dados[i].nome, &banco_Dados[i].score);
 		// fscanf(arq, "%d %s %d\n", &id, nome, &score) != EOF
 		// Copia os dados para um banco de dados no programa
 		// banco_Dados[i].id = id;
