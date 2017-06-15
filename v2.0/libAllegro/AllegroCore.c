@@ -1,44 +1,54 @@
 #include "AllegroCore.h"
 
 
-bool coreInit() {
+bool coreInit()
+{
     //modules and add-ons initialization
-	if (!al_init()) {
+	if (!al_init())
+    {
         fprintf(stderr, "Falha ao inicializar Allegro.\n");
         return false;
     }
 
-    if (!al_init_image_addon()) {
+    if (!al_init_image_addon())
+    {
         fprintf(stderr, "Falha ao inicializar add-on allegro_image.\n");
         return false;
     }
 
-    if (!al_init_font_addon()) {
+    if (!al_init_font_addon())
+    {
         fprintf(stderr, "Falha ao inicializar add-on allegro_font.\n");
         return false;
     }
 
-    if (!al_init_ttf_addon()) {
+    if (!al_init_ttf_addon())
+    {
         fprintf(stderr, "Falha ao inicializar add-on allegro_ttf.\n");
         return false;
     }
 
-    if (!al_init_primitives_addon()) {
+    if (!al_init_primitives_addon())
+    {
         fprintf(stderr, "Falha ao inicializar add-on allegro_primitives.\n");
         return false;
     }
 
 
     eventsQueue = al_create_event_queue();
-    if (!eventsQueue) {
+    if (!eventsQueue)
+    {
         fprintf(stderr, "Falha ao criar fila de eventos.\n");
         return false;
     }
 
+ 	
+
     return true;
 }
 
-bool windowInit(int W, int H, char title[]) {
+bool windowInit(int W, int H, char title[])
+{
     //window and event queue creation
     main_window = al_create_display(W, H);
     if (!main_window)
@@ -54,17 +64,20 @@ bool windowInit(int W, int H, char title[]) {
     return true;
 }
 
-bool inputInit(){
+bool inputInit()
+{
 	/*------------------------------MOUSE--------------------------------*/
 	//Inicializa Mouse
-	if (!al_install_mouse()) {
+	if (!al_install_mouse())
+    {
         fprintf(stderr, "Falha ao inicializar o mouse.\n");
         al_destroy_display(main_window);
         return false;
     }
 
     // Atribui o cursor padrão do sistema para ser usado
-    if (!al_set_system_mouse_cursor(main_window, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT)) {
+    if (!al_set_system_mouse_cursor(main_window, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT))
+    {
         fprintf(stderr, "Falha ao atribuir ponteiro do mouse.\n");
         al_destroy_display(main_window);
         return false;
@@ -72,7 +85,8 @@ bool inputInit(){
     /*------------------------------MOUSE--------------------------------*/
 
     /*------------------------------TECLADO------------------------------*/
-    if (!al_install_keyboard()) {
+    if (!al_install_keyboard())
+    {
         fprintf(stderr, "Falha ao inicializar o teclado.\n");
         return false;
     }
@@ -87,16 +101,19 @@ bool inputInit(){
     return true;
 }
 
-bool fontInit(){
+bool fontInit()
+{
     /*------------------------------FONTE--------------------------------*/
     start = al_load_font("Resources/Fonts/pressStart.ttf", 16, 0);
-    if (!start) {
+    if (!start)
+    {
         fprintf(stderr, "Falha ao carregar \"pressStart.ttf\".\n");
         return false;
     }
 
     ubuntu = al_load_font("Resources/Fonts/Ubuntu-R.ttf", 32, 0);
-    if (!ubuntu) {
+    if (!ubuntu)
+    {
         fprintf(stderr, "Falha ao carregar \"Ubuntu-R.ttf\".\n");
         return false;
     }
@@ -104,27 +121,35 @@ bool fontInit(){
     return true;
 }
 
-void allegroEnd(){
+void allegroEnd()
+{
     al_destroy_display(main_window);
     al_destroy_event_queue(eventsQueue);
 }
 
-void startTimer() {
+
+
+void startTimer()
+{
     startingTime = al_get_time();
 }
 
-double getTimer() {
+double getTimer()
+{
     return al_get_time() - startingTime;
 }
 
-void FPSLimit() {
-	if (getTimer() < 1.0/FPS) {
+void FPSLimit()
+{
+	if (getTimer() < 1.0/FPS)
+    {
         al_rest((1.0 / FPS) - getTimer());
     }
 }
 
 
-bool loadGraphics() {
+bool loadGraphics()
+{
     hscs = al_load_bitmap("Resources/Etc/World.png");
     if (!hscs){
         fprintf(stderr, "Falha carregando world.png\n");
@@ -132,7 +157,7 @@ bool loadGraphics() {
     }
 
     objects = al_load_bitmap("Resources/Tilesets/objects.png");
-    if (!objects) {
+    if (!objects){
         fprintf(stderr, "Falha carregando objects.png\n");
         return false;
     }

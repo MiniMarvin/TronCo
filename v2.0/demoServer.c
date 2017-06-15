@@ -1,18 +1,9 @@
 #include "libSocket/server.h"
 #include "libAllegro/AllegroCore.h"
 
-#define SIZE 50
 
-typedef struct{
-    char matriz[50][50];
-    char jogando; 
-    // Jogando = 0 => Derrota
-    // Jogando = 1 => Jogando
-    // Jogando = 2 => Vitoria
-}dadosTronco;
-
-
-int main() {
+int main()
+{
     //Inicialização básica do Allegro, como vista no Client
     if(!coreInit())
         return -1;
@@ -28,7 +19,7 @@ int main() {
         return -1;
 
 
-    dadosTronco pacote_server;
+    DADOS pacote_server;
     struct msg_ret_t retorno;
     bool sair = false;
     int i=0;
@@ -36,7 +27,8 @@ int main() {
 
     serverInit(4);
 
-    while(!sair) {
+    while(!sair)
+    {
         startTimer();
         int id = acceptConnection();
 
@@ -45,7 +37,8 @@ int main() {
 
         retorno = recvMsg(&pacote_server);
 
-        if(retorno.status == MESSAGE_OK){
+        if(retorno.status == MESSAGE_OK)
+        {
             id = retorno.client_id;
 
             puts("Recebi a Seguinte mensagem:");

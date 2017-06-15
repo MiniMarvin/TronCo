@@ -4,8 +4,8 @@
 #define LARGURA 640
 #define ALTURA 480
 
-int main(int argc, char const *argv[]) {
-    
+int main(int argc, char const *argv[])
+{
     //A primeira coisa a ser feita é inicializar os módulos centrais. Caso algum deles falhe, o programa já para por aí.
     if (!coreInit())
         return -1;
@@ -61,22 +61,22 @@ int main(int argc, char const *argv[]) {
                                {"non proident, sunt in culpa qui."}
                               };
 
-    while(demo) {
-        
+    while(demo)
+    {
         //Iniciamos a contagem do tempo quando o laço se inicia
         startTimer();
 
         //Enquanto a fila de eventos não estiver vazia
-        while(!al_is_event_queue_empty(eventsQueue)) {
-            
+        while(!al_is_event_queue_empty(eventsQueue))
+        {
             //Cria um novo evento para armazenar as entradas recebidas
             ALLEGRO_EVENT eventoDemo;
             //Espera por um evento
             al_wait_for_event(eventsQueue, &eventoDemo);
 
             //Se o tipo do evento for uma tecla sendo apertada
-            if(eventoDemo.type == ALLEGRO_EVENT_KEY_DOWN) {
-                
+            if(eventoDemo.type == ALLEGRO_EVENT_KEY_DOWN)
+            {
                 //Vamos ver qual tecla foi...
                 switch(eventoDemo.keyboard.keycode)
                 {
@@ -98,7 +98,8 @@ int main(int argc, char const *argv[]) {
         }
         
         //Agora vamos tratar as opções, cada vez que uma seta for apertada, devemos circular pelas janelas...
-        switch(option) {
+        switch(option)
+        {
             case 0:
                 //essa janela contem um exemplo de imagem
                 al_draw_text(ubuntu, al_map_rgb(255, 255, 255), LARGURA/2, 10, ALLEGRO_ALIGN_CENTRE, "Exemplo: Imagem1");
