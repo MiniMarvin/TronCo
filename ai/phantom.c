@@ -58,6 +58,11 @@
 
 // #define SIZE 50
 
+typedef struct{
+	int x;
+	int y;
+} mapPos;
+
 // Mapa utilizado para testar os algorítmos de decisão de caminho.
 const char testmap[][5] = {	{'a','0','0','B','0'},
 							{'a','0','0','b','b'},
@@ -67,9 +72,9 @@ const char testmap[][5] = {	{'a','0','0','B','0'},
 
 // Protótipos de funções
 void pegaMapa(char** map, int map_size);
-void buscaCaminho(char** map, int map_size, char player);
-void move();
-
+int move(char** map, int size, mapPos pos);
+// mapPos findPlayer(char** map, int size, int player, mapPos old_pos);
+void findPlayer(char** map, int map_size, int player, mapPos *old_pos);
 // Exibe uma tela 
 ALLEGRO_DISPLAY *display = NULL;
 
@@ -86,9 +91,10 @@ ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
  */
 int main(int argc, char const *argv[]) {
 	
-	int map_size = 0, i, j;
+	int map_size = 0, i, j, jogador = 0;
 	int direcao; // Direção de movimento do bot
 	char** map;
+	mapPos pos = {-1,-1};
 
 	srand(time(NULL));
 
@@ -136,20 +142,21 @@ int main(int argc, char const *argv[]) {
 		recvMsgFromServer(&serverPackage, DONT_WAIT);
 		printaMatriz(serverPackage.matriz);
 
-		// Realiza a busca pelo caminho a ser seguido.
-		// buscaCaminho(map, map_size);
-		
+		// Encontra a posição do player 0
+		// pos = findPlayer(map, map_size, jogador, pos);
+		findPlayer(map, map_size, jogador, &pos);
+		printf("ingame: %d | %d\n", pos.x, pos.y);
+
 		// Controla a movimentação do personagem.
-		// move();
-
-		// Realiza um movimento aleatório para testar o funcionamento do bot.
-		direcao = rand()%4;
-
-		// Evita morrer logo
-		while(direcao == 2) {
+		// direcao = move(map, map_size, pos);
+		do
+		{
 			direcao = rand()%4;
-		}
+		} while (direcao == 2);
+		
 		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
+
+		for (int i = 0; i < 10000; ++i);
 
 		sendMsgToServer(&clientPackage, sizeof(clientPackage));
 
@@ -162,76 +169,6 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-/**
- * @brief       Define qual o caminho que o bot necessita percorrer.
- *  			Obs: o primeiro algorítmo vai ser simplesmente um random que define pra qual
- *				lado o player fantasma deve correr para ter certeza que o bot vai funcionar.
- * 
- * @param[In]   map         O mapa a ser processado.
- * @param[In]   map_size    O tamanho do mapa.
- * @param[In]   player      A letra do player a buscar.
- */ 
-void buscaCaminho(char** map, int map_size, char player) {
-	srand(time(NULL));
-    int rand_move, pos_x, pos_y;
-    int i, j;
-    
-    for(i = 0; i < map_size; i++) {
-    	for(j = 0; j < map_size; j++) {
-    		if( map[i][j] == player ) {
-    			pos_x = i;
-    			pos_y = j;
-    		}
-    	}
-    }
-    
-    //encontra um local ao redor do player onde o objetivo possa ser posto.
-    // do {
-    // 	rand_move = rand()%8;
-    // }
-    // while( board_pos(map, pos_x, pos_y, rand_move) != '0' );
-    
-    //encontra o caminho para o objetivo.
-    
-}
-
-/**
- * @brief	Encontra o valor do caractere para uma determinada posição que rodeia
- *			a posição do player.
- * 
- * @return	Retorna o valor do caractere em relação aquela posição no mapa
- */
-char board_pos(char** map, int pos_x, int pos_y, int rand_move) {
-	char val;
-	switch(rand_move) {
-		case 0:
-			val = map[pos_x - 1][pos_y - 1];
-			break;
-		case 1:
-			val = map[pos_x][pos_y - 1];
-			break;
-		case 2:
-			val = map[pos_x + 1][pos_y - 1];
-			break;
-		case 3:
-			val = map[pos_x - 1][pos_y];
-			break;
-		case 4:
-			val = map[pos_x + 1][pos_y];
-			break;
-		case 5:
-			val = map[pos_x - 1][pos_y + 1];
-			break;
-		case 6:
-			val = map[pos_x][pos_y + 1];
-			break;
-		case 7:
-			val = map[pos_x + 1][pos_y + 1];
-			break;
-		
-	}
-	return val;
-}
 
 /**
  * @brief       Obtém o mapa do servidor.
@@ -257,7 +194,97 @@ void pegaMapa(char** map, int map_size) {
     
 }
 
-void move(){
+/**
+ * @brief      Analisa os possíveis movimentos do bot no mapa do jogo e determina o melhor.
+ *
+ * @param      map   O mapa
+ * @param[in]  size  O tamanho do mapa
+ * @param[in]  pos   A posição onde o jogador foi encontrado pela última vez.
+ *
+ * @return     { description_of_the_return_value }
+ */
+int move(char** map, int map_size, mapPos pos) {
+	int move = 0, stay = 1;
 
+	while(stay) {
+		move = rand()%4;
+		
+		switch(move) {
+			case 0:
+				if(pos.y > 0) {
+					if(map[pos.y - 1][pos.x] == 0) {
+						stay = 0;
+					}	
+				}
+				break;
+			case 1:
+				if(pos.y <= map_size) {
+					if(map[pos.y + 1][pos.x] == 0) {
+						stay = 0;
+					}	
+				}
+				break;
+			case 2:
+				if(pos.x > 0) {
+					if(map[pos.y][pos.x - 1] == 0) {
+						stay = 0;
+					}	
+				}
+				break;
+			case 3:
+				if(pos.x <= map_size) {
+					if(map[pos.y][pos.x + 1] == 0) {
+						stay = 0;
+					}	
+				}
+				break;
+		}
+	}
 	
+
+	return move;
+}
+
+// mapPos findPlayer(char** map, int map_size, int player, mapPos old_pos) {
+void findPlayer(char** map, int map_size, int player, mapPos *old_pos) {
+	// mapPos pos;
+	int i, j;
+
+	// Checa se o bot inicializou agora
+	// if(old_pos.x == -1 || old_pos.y == -1) {
+		// Encontra a posição de um determinado player
+		for (i = 0; i < map_size; ++i) {
+			for (j = 0; j < map_size; ++j) {
+				if(map[i][j] == 'A'+player) {
+					printf("pos: %d | %d\n", i, j);
+					old_pos->x = i;
+					old_pos->y = j;
+					// return;
+				}
+			}
+		}
+	// }
+
+	// else{
+
+	// 	if(map[old_pos.y][old_pos.x + 1] == 'A' + player) {
+	// 		pos.x = old_pos.x+1;
+	// 		pos.y = old_pos.y; 
+	// 	}
+	// 	else if(map[old_pos.y][old_pos.x -1] == 'A' + player) {
+	// 		pos.x = old_pos.x-1;
+	// 		pos.y = old_pos.y; 
+	// 	}
+	// 	else if(map[old_pos.y+1][old_pos.x] == 'A' + player) {
+	// 		pos.x = old_pos.x;
+	// 		pos.y = old_pos.y+1; 
+	// 	}
+	// 	else {
+	// 		pos.x = old_pos.x;
+	// 		pos.y = old_pos.y-1; 
+	// 	}
+
+	// }
+
+	// return pos;
 }
