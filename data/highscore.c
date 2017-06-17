@@ -8,17 +8,13 @@
  *
  * @return     O ponteiro para o arquivo aberto
  */
-FILE* openFile() {
+void openFile(FILE** arq) {
 	
-	FILE* arq;
 	
-	arq = fopen("highScore.txt", "a+");
+	*arq = fopen("highScore.txt", "a+");
 	
-	if(arq != NULL) {
-		return arq;
-	} else {
+	if(*arq == NULL) {
 		perror("Erro na abertura do arquivo");
-		return NULL;
 	}
 	
 }
@@ -39,17 +35,16 @@ FILE* organizateData(FILE* arq) {
 
 	//Salva a referencia de memória do banco de dados para swap
 	data tmp;
-	
 
 	data* banco_Dados = NULL;
 
-	readData(arq, banco_Dados);
+	int limit = readData(arq, &banco_Dados);
 
 	//Reabre o arquivo apagando tudo o que havia sido salvo anteriormente
 	arq = freopen("highScore.txt", "w+", arq);
 	
 	// 5 Highscores Salvos
-	for(i = limit - 1; i >= 0; i--) {
+	for(i = limit - 1; i >= 1; i--) {
 
 		for(j = i; j >= 0; j--) {
 			
@@ -73,10 +68,13 @@ FILE* organizateData(FILE* arq) {
 		// Debug
 		// printf("%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
 	}
+	fprintf(arq, "%d %s %d", aux, banco_Dados[i].nome, banco_Dados[i].score);
 	
+	fclose(arq);
 	
+	openFile(&arq);
 	//Debug
-	printf("Organized\n");
+	printf("Organizado!\n");
 	return arq;
 }
 
@@ -88,39 +86,58 @@ FILE* organizateData(FILE* arq) {
  *                          gravadas no arquivo
  * @param[in]  limit        Limite de highscores que serão salvos no arquivo highScore.txt
  */
-FILE* saveData(FILE* arq, data* banco_Dados) {
+void saveData(FILE* arq, data* banco_Dados, int limit) {
 	
 	//Move o cursor para o fim do arquivo
 	fseek(arq, 0, SEEK_END);
 	
-	// FILE* arq1 = arq;
-
-	// int id, score;
-	// char nome[40];
+	// printf("Aqui de boas\n");
+	// printf("Limit: %d\n", limit);
+	// printf("Dados: %d %s\n", banco_Dados[0].score, banco_Dados[0].nome);
 	
-	// // // Debug
-	// // printf("Digite seu ID: ");
-	// // scanf(" %d", &id);
-	// // printf("Digite seu nome: ");
-	// // scanf(" %s", nome);
-	// // printf("Digite sua pontuacao: ");
-	// // scanf(" %d", &score);
-
-	//Salva no arquivo o que foi digitado seguido de uma quebra de linha
+	int i;
+	int tam = ftell(arq);
 	
-	for (int i = 0; i < limit; ++i) {
-		fprintf(arq1, "%d %s %d\n", banco_Dados[i].id, banco_Dados[i].nome, banco_Dados[i].score);
+	//Quebra de linha na última posição salva
+	
+	if(tam == 0) {
+		printf("Fim do arquivo\n");
+		// fprintf(arq, "\n");
+	} else {
+		fprintf(arq, "\n");
 	}
 	
-	fclose(arq1);
+	
+	for ( i = 0; i < limit - 1; ++i) {
+	
+		// fprintf(arq1, "%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
+		fprintf(arq, "%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
+	}
+	// printf("%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
+	// fprintf(arq1, "%d %s %d", i, banco_Dados[i].nome, banco_Dados[i].score);
+	fprintf(arq, "%d %s %d", i, banco_Dados[i].nome, banco_Dados[i].score);
+	
+	// organizateData(arq1);
+	
+	
+	//Organiza os scores antes de sair
+	organizateData(arq);
+	
+	// fclose(arq1);
+	
+	//Salva do buffer no arquivo
+	fclose(arq);
 
-	arq1 = fopen("highScore.txt", "a+");
+	
+	//Reabre o arquivo para não dar erro
+	openFile(&arq);
+	// arq = fopen("highScore.txt", "a+");
 
 	// Debug
 	printf("Gravado!\n");
 
 
-	return arq1;
+	// return arq1;
 }
 
 /**
@@ -130,25 +147,39 @@ FILE* saveData(FILE* arq, data* banco_Dados) {
  * @param      banco_Dados  O banco de dados que armazenará essas informações
  * @param      limit        Quantas informações foram lidas
  */
-void readData(FILE* arq, data* banco_Dados) {
+int readData(FILE* arq, data** banco_Dados) {
 
+	data* tmp;
 
 	//Move o cursor para o início do arquivo
 	rewind(arq);
-	
 
-	int i;
+	char str[100];
+	int arq_len = 0;
 
-	if(banco_Dados == NULL) {
-
+	while(fgets(str, sizeof(str), arq) != NULL) {
+		arq_len++;
 	}
-   
+	printf("Tam: %d\n", arq_len);
+	// printf("Alocado\n");
+	tmp = (data*) malloc(arq_len*sizeof(data)); 
+
+	rewind(arq);
+
+	int i = 0;   
 	
 	// Lê as informações formatadas no seguinte estilo até encontrar o fim do arquivo
-	while(fscanf(arq, "%d %s %d\n", &banco_Dados[i].id, banco_Dados[i].nome, &banco_Dados[i].score) != EOF) {
+	while(fscanf(arq, "%d %s %d", &tmp[i].id, tmp[i].nome, &tmp[i].score) != EOF) {
 		i++;
+		// printf("Lendo\n");
 	}
+	if(banco_Dados != NULL)
+		free(*banco_Dados);
+	*banco_Dados = tmp;
 	
 	//Debug
 	printf("Lido!\n");
+
+	return arq_len;
+	// return banco_Dados;
 }

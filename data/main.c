@@ -10,26 +10,30 @@ typedef struct {
 	int score;
 } data;
 
-#define MAX_HIGHSCORE 5
-
-FILE* organizateData(FILE* arq, data* banco_Dados, int limit);
-void getData(FILE* arq);
-void readData(FILE* arq, data* banco_Dados, int* limit);
+void printData(data* banco_Dados, int limit);
+void pegarDados(data** banco_Dados, int count);
 
 int main(int argc, char const *argv[]) {
+	
+	// data* banco_Dados = (data*) malloc(40*sizeof(data));
+	
+	// printf("Sizeof banco_Dados: %ld %ld\n", sizeof(banco_Dados), sizeof(data));
 	
 	char ch = ' ';
 
 	int limit;
+	int i = 0;
 	
 	// arquivo onde ficará salvo o highscore 
 	FILE *arq;
 	
-	//Salva apenas 6 highscores
-	data *banco_Dados = (data*) malloc(MAX_HIGHSCORE*sizeof(data));
+	data *banco_Dados = NULL;
+	
+	data* banco_Gravacao = NULL;
 	
 	// Abre o arquivo no modo anexar
-	arq = fopen("highScore.txt", "a+");
+	openFile(&arq);
+	// arq = fopen("highScore.txt", "a+");
 	
 	//Testa para ver se o arquivo abriu corretamente
 	if(arq != NULL) {
@@ -40,18 +44,28 @@ int main(int argc, char const *argv[]) {
 		
 			switch(ch) {
 				case 'a':
-					getData(arq);
+					saveData(arq, banco_Gravacao, 2);
 					break;
-				case 'l':
-					readData(arq, banco_Dados, &limit);
+				case 'r':
+					limit = readData(arq, &banco_Dados);
 					break;
 				case 'o':
-					arq = organizateData(arq, banco_Dados, limit);
+					organizateData(arq);
+					break;
+				case 'p':
+					printData(banco_Dados, limit);
+					break;
+				case 'g':
+					pegarDados(&banco_Gravacao, 2);
+					// for (i = 0; i < 2; i++) {
+					// 	printf("%s %d\n", banco_Gravacao[i].nome, banco_Gravacao[i].score);
+					// }
 					break;
 			}
 		}
 		
 		fclose(arq);
+		free(banco_Dados);
 	} else {
 
 		//Printa a mensagem abaixo e o erro que ocorreu
@@ -61,121 +75,35 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-/**
- * @brief      Grava no arquivo os valores previamente lidos ordenado de forma
- *             decrescente o score
- *
- * @param      arq          O arquivo onde está os scores
- * @param      banco_Dados  O banco de dados no qual foi armazenado as
- *                          informações do arquivo
- * @param[in]  limit        Quantas informações foram lidas
- *
- * @return     Um ponteiro para arquivo organizado
- */
 
-// FILE* organizateData(FILE* arq, data* banco_Dados, int limit) {
+void printData(data* banco_Dados, int limit) {
 	
-// 	int i = 0, j = 0, aux = 1;
-// 	// FILE *arq1 = fopen("highScore2.txt", "w+");
-
-// 	//Salva a referencia de memória do banco de dados para swap
-// 	data tmp;
+	int i = 0;
+	for ( i = 0; i < limit; i++) {
+		printf("%d %s %d\n", banco_Dados[i].id, banco_Dados[i].nome, banco_Dados[i].score);
+	}
 	
-// 	//Reabre o arquivo apagando tudo o que havia sido salvo anteriormente
-// 	arq = freopen("highScore.txt", "w+", arq);
-	
-// 	// 5 Highscores Salvos
-// 	for(i = limit - 1; i >= 0; i--) {
-
-// 		for(j = i; j >= 0; j--) {
-			
-// 			//Organiza do maior para o menor
-// 			if(banco_Dados[ j].score > banco_Dados[ i].score) {
-				
-// 				tmp = banco_Dados[ i];
-// 				banco_Dados[ i] = banco_Dados[ j];
-// 				banco_Dados[ j] = tmp;
-				
-// 			}
-				
-			
-// 		}
-		
-// 		//Salva o novo highscore organizado em outro arquivo
-// 		fprintf(arq, "%d %s %d\n", aux, banco_Dados[i].nome, banco_Dados[i].score);
-		
-// 		//Aumenta o indice do score
-// 		aux++;
-// 		// Debug
-// 		// printf("%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
-// 	}
-	
-	
-// 	//Debug
-// 	printf("Organized\n");
-// 	return arq;
-// }
-
-// /**
-//  * @brief      Obtem informações do usuário e grava no arquivo
-//  *
-//  * @param      arq   O arquivo onde será gravado essas informações
-//  */
-// void getData(FILE* arq) {
-	
-// 	//Move o cursor para o fim do arquivo
-// 	fseek(arq, 0, SEEK_END);
-	
-// 	int id, score;
-// 	char nome[40];
-	
-// 	// Debug
-// 	printf("Digite seu ID: ");
-// 	scanf(" %d", &id);
-// 	printf("Digite seu nome: ");
-// 	scanf(" %s", nome);
-// 	printf("Digite sua pontuacao: ");
-// 	scanf(" %d", &score);
-
-// 	//Salva no arquivo o que foi digitado seguido de uma quebra de linha
-// 	fprintf(arq, "%d %s %d\n", id, nome, score);
-
-// 	// Debug
-// 	printf("Gravado!\n");
-// }
-
-// /**
-//  * @brief      Lê os dados presentes no arquivo e sal.
-//  *
-//  * @param      arq          O arquivo o qual será lido as informações
-//  * @param      banco_Dados  O banco de dados que armazenará essas informações
-//  * @param      limit        Quantas informações foram lidas
-//  */
-// void readData(FILE* arq, data* banco_Dados, int* limit) {
+}
 
 
-// 	//Move o cursor para o início do arquivo
-// 	rewind(arq);
+void pegarDados(data** banco_Dados, int count) {
 	
-   
-// 	int id, score, i = 0;
-// 	char nome[50];
+	int i;
+	data* tmp = *banco_Dados;
+	if(tmp != NULL) {
+		free(tmp);
+		tmp = (data*) malloc(count*sizeof(data));
+	} else {
+		tmp = (data*) malloc(count*sizeof(data));
+	}
 	
-// 	// Lê as informações formatadas no seguinte estilo até encontrar o fim do arquivo
-// 	while(fscanf(arq, "%d %s %d\n", &id, nome, &score) != EOF) {
-		
-// 		// Copia os dados para um banco de dados no programa
-// 		banco_Dados[i].id = id;
-// 		strcpy(banco_Dados[i].nome, nome);
-// 		banco_Dados[i].score = score;
-		
-// 		// Debug
-// 		// printf("%d %s %d\n", id, nome, score);
-// 		// printf("I: %d\n", i);
-// 		i++;
-// 	}
-// 	*(limit) = i;
+	for (i = 0; i < count; i++) {
 	
-// 	//Debug
-// 	printf("Lido!\n");
-// }
+		scanf(" %s %d", tmp[i].nome, &tmp[i].score);
+		// printf("%s %d\n", tmp[i].nome, tmp[i].score);
+	}
+	
+	*banco_Dados = tmp;
+	
+	printf("Exit\n");
+}

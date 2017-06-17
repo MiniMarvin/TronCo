@@ -14,7 +14,7 @@ typedef struct {
  *
  * @return     O ponteiro para o arquivo aberto
  */
-FILE* openFile();
+void openFile(FILE** arq);
 
 
 /**
@@ -26,7 +26,7 @@ FILE* openFile();
  *
  * @return     { description_of_the_return_value }
  */
-FILE* organizateData(FILE* arq, data* banco_Dados, int limit);
+FILE* organizateData(FILE* arq);
 
 
 
@@ -38,7 +38,7 @@ FILE* organizateData(FILE* arq, data* banco_Dados, int limit);
  *                          gravadas no arquivo
  * @param[in]  limit        Limite de highscores que serão salvos no arquivo highScore.txt
  */
-FILE* saveData(FILE* arq, data* banco_Dados, int limit);
+void saveData(FILE* arq, data* banco_Dados, int limit);
 
 
 /**
@@ -48,7 +48,7 @@ FILE* saveData(FILE* arq, data* banco_Dados, int limit);
  * @param      banco_Dados  O banco de dados que armazenará essas informações
  * @param      limit        Quantas informações foram lidas
  */
-void readData(FILE* arq, data* banco_Dados, int limit);
+int readData(FILE* arq, data** banco_Dados);
 
 
 
