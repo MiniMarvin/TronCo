@@ -23,7 +23,7 @@
  *
  * @param      matriz  A matriz
  */
-void printaMatriz(char matriz[SIZE][SIZE]);
+void printaMatriz(char matriz[][SIZE], ALLEGRO_BITMAP *imagem) ;
 
 
  /**

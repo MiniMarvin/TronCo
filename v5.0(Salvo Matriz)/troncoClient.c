@@ -29,6 +29,8 @@
 // Exibe uma tela 
 ALLEGRO_DISPLAY *display = NULL;
 
+ALLEGRO_BITMAP *imagem = NULL;
+
 // Evento de captura do teclado
 ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
 
@@ -58,8 +60,11 @@ int main(int argc, char **argv) {
 	al_clear_to_color(al_map_rgb(10,50,30));
 	al_flip_display();
 
+	imagem = al_load_bitmap("/home/CIN/tasm2/Downloads/v5.0(Salvo Matriz)/SPRITE_moto2.png");
+
 	while (!sair) {
 		printf("OI\n");
+		if(imagem == NULL) printf("\nOUTRA COISA\n");
 		while(!al_is_event_queue_empty(fila_eventos)) {
 			printf("KEY PRESSED\n");
 			ALLEGRO_EVENT evento;
@@ -112,7 +117,7 @@ int main(int argc, char **argv) {
 		//recebendo a mensagem
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
 		recvMsgFromServer(&serverPackage, WAIT_FOR_IT);
-		printaMatriz(serverPackage.matriz);
+		printaMatriz(serverPackage.matriz, imagem);
 		al_rest(1);
 		al_flip_display();
 	}

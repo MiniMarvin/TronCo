@@ -11,8 +11,12 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
     fprintf(stderr, "Falha ao inicializar add-on de primitivas.\n");
     return false;
   }
+  if (!al_init_image_addon()) {
+    fprintf(stderr, "Falha ao inicializar add-on de imagens.\n");
+    return false;
+  }
 
-  *display = al_create_display(550, 550);
+  *display = al_create_display(900, 1600);
   if(!display) {
     fprintf(stderr, "failed to create display!\n");
     return -1;
@@ -35,10 +39,10 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
   return true;
 }
 
-void printaMatriz(char matriz[][SIZE]) {
+ void printaMatriz(char matriz[][SIZE], ALLEGRO_BITMAP *imagem) {
    int i, j;
-   int sizeQuadrado = 8;// matrizQuadrado[600][480];
-   int xInicial = 2, yInicial = 2;
+   int sizeQuadrado = 16;// matrizQuadrado[600][480];
+   int xInicial = 0, yInicial = 0;
 
 
    for(i = 0; i < SIZE; i++) {
@@ -49,19 +53,23 @@ void printaMatriz(char matriz[][SIZE]) {
         switch(matriz[i][j]) {
           case '0':
           //x1, y1, x2, y2
+             
              al_draw_filled_rectangle(xInicial, yInicial,
                                   (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
                                   AZUL);
              break;
           case 'a':
+
+              // al_draw_bitmap_region(imagem, 64, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             al_draw_filled_rectangle(xInicial, yInicial,
                                   (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
                                   JOGADOR1);
             break;
           case 'A':
-            al_draw_filled_rectangle(xInicial, yInicial,
-                                  (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
-                                  CABECA_JOGADOR1);
+            al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            // al_draw_filled_rectangle(xInicial, yInicial,
+            //                       (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
+            //                       CABECA_JOGADOR1);
             break;
           case 'b':
             al_draw_filled_rectangle(xInicial, yInicial,
