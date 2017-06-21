@@ -171,6 +171,6 @@ void pegaMapa(char** map, int map_size) {
     
 }
 
-void move(){
+void randomMove(){
 	
 }
