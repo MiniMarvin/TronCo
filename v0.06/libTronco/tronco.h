@@ -13,12 +13,13 @@
 
 typedef struct{
   int dir;
-}clientMsg;
+} clientMsg;
 
 typedef struct{
   char matriz[SIZEX][SIZEY];
+  data highscore[10];
   // int status; Inteiro para dizer se o cliente esta vivo no jogo
-}serverMsg;
+} serverMsg;
 
 /**
  * @brief      Espera um tempo em mili segundos.

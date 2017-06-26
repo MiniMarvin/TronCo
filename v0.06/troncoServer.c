@@ -58,7 +58,11 @@ int main(int argc, char **argv){
 
     serverInit(MAXCLIENTS);
 
-
+    //Variáveis para o highscore
+    // FILE* arq;
+    // openFile(&arq);
+    // int limit = readData(arq, &serverPackage.highscore);
+    
    for(i = 0; i < SIZEX; i++){
       for(j = 0; j < SIZEY; j++){
          matrizJogo[i][j] = '0';
