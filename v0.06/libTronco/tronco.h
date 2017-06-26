@@ -8,6 +8,8 @@
 
 #define SIZEX 25
 #define SIZEY 45
+#define WIDTH 1550
+#define HEIGTH 870
 
 typedef struct{
   int dir;

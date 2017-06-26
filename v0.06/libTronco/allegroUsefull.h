@@ -4,6 +4,9 @@
 #include "tronco.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+//para escrever texto
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 
 #define AZUL al_map_rgb(22, 55, 132)
 #define VERMELHO al_map_rgb(250, 120, 255)
@@ -35,6 +38,7 @@ void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem) ;
   *             demais valores significam falha.
   */
 bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos);
+int inicializarMenu(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos);
 
 
 #endif

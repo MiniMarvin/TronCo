@@ -29,6 +29,8 @@
 // Exibe uma tela 
 ALLEGRO_DISPLAY *display = NULL;
 
+ALLEGRO_DISPLAY *displayMenu = NULL;
+
 ALLEGRO_BITMAP *imagem = NULL;
 
 // Evento de captura do teclado
@@ -124,6 +126,10 @@ int o_jogo(){
 	clientMsg clientPackage;
 	serverMsg serverPackage;
 
+	if (!inicializar(&display, &fila_eventos)) {
+		return -1;
+	}
+
 	//Esse IP irá nos conectar a "nós mesmos", apenas para efeito de testes.
 	char ServerIP[30]={"127.0.0.1"};
 	connectToServer(ServerIP);
@@ -133,7 +139,7 @@ int o_jogo(){
 
 	imagem = al_load_bitmap("./Resources/Tilesets/troncoSheet.png");
 
-	while(!sair){
+	while (!sair) {
 		printf("OI\n");
 		if(imagem == NULL) printf("\nOUTRA COISA\n");
 		while(!al_is_event_queue_empty(fila_eventos)) {
@@ -189,7 +195,7 @@ int o_jogo(){
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
 		recvMsgFromServer(&serverPackage, WAIT_FOR_IT);
 		printaMatriz(serverPackage.matriz, imagem);
-		al_rest(0.0);
+		al_rest(1);
 		al_flip_display();
 	}
 
@@ -198,8 +204,8 @@ int o_jogo(){
 
 int menu(){
 	//fontes
-	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);
-	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
+	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",72,0);
+	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",38,0);
    	if (!font_big){
       fprintf(stderr, "Could not load 'Tr2n.ttf'.\n");
    	}
@@ -219,13 +225,13 @@ int menu(){
 	   //printar
 	   //printf("%d\n", cursorPos);
 	   al_clear_to_color(al_map_rgb(50,10,70));
-	   al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 150,ALLEGRO_ALIGN_CENTRE, "TRONco");
-	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 400,ALLEGRO_ALIGN_CENTRE, "Jogar");
-	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 600,ALLEGRO_ALIGN_CENTRE, "Ranking");
-	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 800,ALLEGRO_ALIGN_CENTRE, "Sair");
+	   al_draw_text(font_big, al_map_rgb(255,255,255), 640/2, 50,ALLEGRO_ALIGN_CENTRE, "TRONco");
+	   al_draw_text(font_small, al_map_rgb(255,255,255), 640/2, 200,ALLEGRO_ALIGN_CENTRE, "Jogar");
+	   al_draw_text(font_small, al_map_rgb(255,255,255), 640/2, 250,ALLEGRO_ALIGN_CENTRE, "Ranking");
+	   al_draw_text(font_small, al_map_rgb(255,255,255), 640/2, 300,ALLEGRO_ALIGN_CENTRE, "Sair");
 	   
 	   //cursor
-	   al_draw_circle(550, 222 + 200*(cursorPos + 1), 20, al_map_rgb(255,255,255), 4);
+	   al_draw_circle(200, 165 + 50*(cursorPos + 1), 12, al_map_rgb(255,255,255),3);
 	   al_flip_display();
 
 	

@@ -80,7 +80,7 @@ void printData(data* banco_Dados, int limit) {
 	
 	int i = 0;
 	for ( i = 0; i < limit; i++) {
-		printf("%d %s %d\n", banco_Dados[i].id, banco_Dados[i].nome, banco_Dados[i].score);
+		printf("%d %s %d\n", i+1, banco_Dados[i].nome, banco_Dados[i].score);
 	}
 	
 }
