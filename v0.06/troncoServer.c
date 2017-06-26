@@ -192,7 +192,7 @@ int main(int argc, char **argv){
               }
               printf("\n");
             }
-            
+
             sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
         }
 
