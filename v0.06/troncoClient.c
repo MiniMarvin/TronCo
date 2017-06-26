@@ -38,7 +38,6 @@ ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
 int menu();
 int jogo();
 int o_jogo();
-int ranking();
 
 int main(int argc, char **argv) {
 	int estado = 0;
@@ -65,7 +64,7 @@ int main(int argc, char **argv) {
 				break;
 
 			case 2:
-				estado = ranking();
+				//estado = ranking();
 				break;
 			case 3:
 				running = false;
@@ -132,7 +131,7 @@ int o_jogo(){
 	al_clear_to_color(al_map_rgb(10,50,30));
 	al_flip_display();
 
-	imagem = al_load_bitmap("./Resources/Tilesets/troncoSheet.png");
+	imagem = al_load_bitmap("./Resources/Tilesets/rastro_novo.png");
 
 	while(!sair){
 		printf("OI\n");
@@ -189,8 +188,9 @@ int o_jogo(){
 		//recebendo a mensagem
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
 		recvMsgFromServer(&serverPackage, WAIT_FOR_IT);
+		// printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
 		printaMatriz(serverPackage.matriz, imagem);
-		al_rest(0.0);
+		al_rest(1.0);
 		al_flip_display();
 	}
 
@@ -270,15 +270,4 @@ int menu(){
    //al_rest(10.0);
 
    al_destroy_display(display);
-}
-
-
-int ranking() {
-	
-	char ServerIP[30]={"127.0.0.1"};
-	connectToServer(ServerIP);
-	
-	recvMsgFromServer(&serverPackage, WAIT_FOR_IT);
-	
-	return 2;	
 }

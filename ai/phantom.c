@@ -195,6 +195,93 @@ void pegaMapa(char** map, int map_size) {
 }
 
 /**
+ * @brief      Pega o valor em char da posição da matriz em relação a uma posição
+ *
+ * @param      map       The map
+ * @param[in]  map_size  The map size
+ * @param[in]  pos       The position
+ * @param[in]  val       The value
+ *
+ * @return     The value.
+ */
+char getVal(char** map, int map_size, mapPos pos, int val) {
+	char character = 0;
+	switch(val) {
+		case 0:
+			character = map[pos.x - 1][pos.y];
+			break;
+		case 1:
+			character = map[pos.x + 1][pos.y];
+			break;
+		case 2:
+			character = map[pos.x][pos.y - 1];
+			break;
+		case 3:
+			character = map[pos.x][pos.y + 1];
+			break;
+	}
+
+	return character;
+}
+
+/**
+ * @brief      Movimenta o bot aleatoriamente ao longo do mapa
+ *
+ * @param      map       The map
+ * @param[in]  map_size  The map size
+ * @param[in]  pos       The position
+ *
+ * @return     Qual direção o bot deveria seguir.
+ */
+int random_move(char** map, int map_size, mapPos pos) {
+	srand(time(NULL));
+	int val = 0;
+	int done[4] = {0};
+	int sum = 0;
+
+	do {
+		val = rand()%4; // só se movimenta para 4 lados
+		sum = 0;
+		done[val] = 1;
+		for (int i = 0; i < 4; ++i) { // Sai do loop caso nenhuma das direções esteja livre para evitar consumo de processo na máquiuna
+			sum += done[val];
+		}
+	}
+	while(getVal(map, map_size, mapPos, val) != '0' && sum < 4);
+
+	return val;
+}
+
+/**
+ * @brief      Realiza uma busca com base no minimax para definir qual a melhor
+ *             forma de se mover
+ *             
+ * @long	   
+ *
+ * @param      map         The map
+ * @param[in]  map_size    The map size
+ * @param      pos         The position of all players in the map
+ * @param[in]  player_num  The number of players
+ * @param[in]  bot_player  The bot player num
+ *
+ * @return     O lado a mover
+ */
+int minimax_move(char** map, int map_size, mapPos* pos, int player_num, int bot_player) {
+	int move = 0;
+
+	// Itera em todos os 4 movimentos possíveis.
+	for (int i = 0; i < 4; ++i) {
+		// Move
+		// Gera um score para isso.
+		// Invoca a execução para o próximo player a mover
+		// Execução recursiva
+		
+	}	
+
+	return move;
+}
+
+/**
  * @brief      Analisa os possíveis movimentos do bot no mapa do jogo e determina o melhor.
  *
  * @param      map   O mapa

@@ -48,16 +48,15 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
 void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem) {
    int i, j;
    int sizeQuadrado = 32;// matrizQuadrado[600][480];
-   int xInicial = 2, yInicial = 0;
-
-
+   int xInicial = 0, yInicial = 0;
+   
    for(i = 0; i < SIZEX; i++) {
       for(j = 0; j < SIZEY; j++) {
 
         switch(matriz[i][j]) {
           case '0':
           //x1, y1, x2, y2
-             al_draw_bitmap_region(imagem, 0, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+             al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
              // al_draw_filled_rectangle(xInicial, yInicial,
              //                      (xInici al + sizeQuadrado), (yInicial + sizeQuadrado),
              //                      AZUL);
@@ -65,47 +64,39 @@ void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem) {
           case 'a':
 
               // al_draw_bitmap_region(imagem, 64, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
-			     al_draw_bitmap_region(imagem, 0, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
-            al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+			     al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+           al_draw_bitmap_region(imagem, 128, 32, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             // al_draw_filled_rectangle(xInicial, yInicial,
                                   // (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
                                   // JOGADOR1);
             break;
           case 'A':
-            al_draw_filled_rectangle(xInicial, yInicial,
-                                  (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
-                                  JOGADOR1);
+            al_draw_bitmap_region(imagem, 1 * 32, 32, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             // al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             // al_draw_filled_rectangle(xInicial, yInicial,
             //                       (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
             //                       CABECA_JOGADOR1);
             break;
           case 'b':
-            al_draw_bitmap_region(imagem, 0, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
-            al_draw_bitmap_region(imagem, 0, 32, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            al_draw_bitmap_region(imagem, 128, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
              break;
           case 'B':
-            al_draw_filled_rectangle(xInicial, yInicial,
-                                  (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
-                                  CABECA_JOGADOR2);
+            al_draw_bitmap_region(imagem, 1 * 32, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             break;
           case 'c':
-            al_draw_bitmap_region(imagem, 0, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
-            al_draw_bitmap_region(imagem, 32, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            al_draw_bitmap_region(imagem, 128, 96, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             break;
           case 'C':
-            al_draw_filled_rectangle(xInicial, yInicial,
-                                  (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
-                                  CABECA_JOGADOR3);
+            al_draw_bitmap_region(imagem, 1 * 32, 96, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             break;
           case 'd':
-            al_draw_bitmap_region(imagem, 0, 64, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
-            al_draw_bitmap_region(imagem, 32, 32, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+            al_draw_bitmap_region(imagem, 128, 128, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             break;
           case 'D':
-            al_draw_filled_rectangle(xInicial, yInicial,
-                                  (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
-                                  CABECA_JOGADOR4);
+            al_draw_bitmap_region(imagem, 1 * 32, 128, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             break;
           default:
             // al_draw_filled_rectangle(xInicial, yInicial,
@@ -113,9 +104,9 @@ void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem) {
             //                       AZUL);
             break;
         }
-        xInicial = xInicial + sizeQuadrado + 2;// sizeQuadrado;
+        xInicial = xInicial + sizeQuadrado;// sizeQuadrado;
       }
-      xInicial = 2;
-      yInicial = yInicial + sizeQuadrado + 2;
+      xInicial = 0;
+      yInicial = yInicial + sizeQuadrado;
    }
 }

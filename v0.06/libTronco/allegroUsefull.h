@@ -25,7 +25,7 @@
  *
  * @param      matriz  A matriz
  */
-void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem) ;
+void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem);
 
 
  /**

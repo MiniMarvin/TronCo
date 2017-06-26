@@ -4,7 +4,6 @@ serverName=SERVER
 clientName=CLIENT
 botName=PHANTOM
 botFile=../ai/phantom
-highscoreFile = "libTronco/highscore.c"
 dependencies="dependencies"
 dependencie_files="libTronco/allegroUsefull.c"
 
@@ -39,4 +38,3 @@ runBot:
 # até o momento só dependências de clientes.
 compDependencies:
 	gcc -c $(dependencie_files) -o dependencies
-	gcc -c $(highscoreFile) -o score
