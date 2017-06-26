@@ -27,7 +27,7 @@ int main(int argc, char **argv){
    if (!display){
       fprintf(stderr, "Failed to create display.\n");
       return -1;
-   }
+    }
 
    ALLEGRO_FONT *font_big = al_load_ttf_font("Tr2n.ttf",72,0);
    ALLEGRO_FONT *font_small = al_load_ttf_font("Tr2n.ttf",38,0);
@@ -45,6 +45,7 @@ int main(int argc, char **argv){
    bool running = true;
 
    while(running){
+   	al_set_window_position(display, 320, 240);
 	   //printar
 	   //printf("%d\n", cursorPos);
 	   al_clear_to_color(al_map_rgb(50,10,70));
@@ -94,7 +95,7 @@ int main(int argc, char **argv){
 
    //al_rest(10.0);
 
-   al_destroy_display(display);
+   al_set_window_position(display, 2000, 2000);
 
    return 0;
 }
