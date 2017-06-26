@@ -53,8 +53,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "../lib/client.h"
-#include "../v2.0/libTronco/tronco.h"
-#include "../v2.0/libTronco/allegroUsefull.h"
+#include "../v0.07(Direcao Atualizada)/libTronco/tronco.h"
+#include "../v0.07(Direcao Atualizada)/libTronco/allegroUsefull.h"
 
 // #define SIZE 50
 
@@ -71,12 +71,19 @@ const char testmap[][5] = {	{'a','0','0','B','0'},
 							{'0','0','0','0','0'}};
 
 // Protótipos de funções
-void pegaMapa(char** map, int map_size);
-int move(char** map, int size, mapPos pos);
+void pegaMapa(char** map, int map_size_x, int map_size_y);
+int move(char** map, int map_size_x, int map_size_y, mapPos pos);
 // mapPos findPlayer(char** map, int size, int player, mapPos old_pos);
-void findPlayer(char** map, int map_size, int player, mapPos *old_pos);
+void findPlayer(char** map, int map_size_x, int map_size_y, int player, mapPos *old_pos);
+char getVal(char** map, int map_size_x, int map_size_y, mapPos pos, int val);
+int random_move(char** map, int map_size_x, int map_size_y, mapPos pos);
+
+
 // Exibe uma tela 
 ALLEGRO_DISPLAY *display = NULL;
+
+// Tilesheet
+ALLEGRO_BITMAP *imagem = NULL;
 
 // Evento de captura do teclado
 ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
@@ -91,9 +98,10 @@ ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
  */
 int main(int argc, char const *argv[]) {
 	
-	int map_size = 0, i, j, jogador = 0;
+	int map_size_x = 0, map_size_y = 0, i, j, jogador = 0;
 	int direcao; // Direção de movimento do bot
 	char** map;
+	int server_dir[4] = {0};
 	mapPos pos = {-1,-1};
 
 	srand(time(NULL));
@@ -104,12 +112,13 @@ int main(int argc, char const *argv[]) {
 	//     map_size = atoi(argv[1]);
 	// }
 	 
-	map_size = SIZE;
+	map_size_x = SIZEX;
+	map_size_y = SIZEY;
 
 	//aloca memória para o mapa
-	map = (char**) malloc(sizeof(char*)*map_size);
-	for (i = 0; i < map_size; i++) {
-	    map[i] = (char*) malloc(sizeof(char)*map_size);
+	map = (char**) malloc(sizeof(char*)*map_size_x);
+	for (i = 0; i < map_size_x; i++) {
+	    map[i] = (char*) malloc(sizeof(char)*map_size_y);
 	}
 
 	/*********************Conexão com o servidor************************/
@@ -128,23 +137,25 @@ int main(int argc, char const *argv[]) {
 
 	al_clear_to_color(al_map_rgb(10,50,30));
 	al_flip_display();
+
+	imagem = al_load_bitmap("./Resources/Tilesets/rastro_novo.png");
 	/*******************************************************************/
 
 	// Comunica com o servidor, calcula o passo e envia o movimento para
 	// o server.
 	while(1) {
 		// Obtém o mapa atual do servidor.
-		pegaMapa(map, map_size);
+		pegaMapa(map, map_size_x, map_size_y);
 		
 		/**
 		 * Comunica com o servidor e carrega o allegro.
 		 */
 		recvMsgFromServer(&serverPackage, DONT_WAIT);
-		printaMatriz(serverPackage.matriz);
+		printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
 
 		// Encontra a posição do player 0
 		// pos = findPlayer(map, map_size, jogador, pos);
-		findPlayer(map, map_size, jogador, &pos);
+		findPlayer(map, map_size_x, map_size_y, jogador, &pos);
 		printf("ingame: %d | %d\n", pos.x, pos.y);
 
 		// Controla a movimentação do personagem.
@@ -156,12 +167,16 @@ int main(int argc, char const *argv[]) {
 		
 		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
 
-		for (int i = 0; i < 10000; ++i);
+		// for (int i = 0; i < 10000; ++i);
 
 		sendMsgToServer(&clientPackage, sizeof(clientPackage));
 
-		al_rest(0.01);
+
+		printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
 		al_flip_display();
+		al_rest(1);
+		// al_rest(0.01);
+		// al_flip_display();
 		// delay(100);
 	}
 	
@@ -176,7 +191,7 @@ int main(int argc, char const *argv[]) {
  * @param[In]   map         O endereço onde o mapa deverá ser armazenado
  * @param[In]   map_size    O tamanho do mapa.
  */
-void pegaMapa(char** map, int map_size) {
+void pegaMapa(char** map, int map_size_x, int map_size_y) {
     int i, j;
     serverMsg serverPackage;
 
@@ -185,8 +200,8 @@ void pegaMapa(char** map, int map_size) {
     recvMsgFromServer(&serverPackage, DONT_WAIT);
 
 
-    for(i = 0; i < map_size; i++) {
-    	for(j = 0; j < map_size; j++) {
+    for(i = 0; i < map_size_x; i++) {
+    	for(j = 0; j < map_size_y; j++) {
     		// map[i][j] = testmap[i][j];
     		map[i][j] = serverPackage.matriz[i][j];
     	}
@@ -204,7 +219,7 @@ void pegaMapa(char** map, int map_size) {
  *
  * @return     The value.
  */
-char getVal(char** map, int map_size, mapPos pos, int val) {
+char getVal(char** map, int map_size_x, int map_size_y, mapPos pos, int val) {
 	char character = 0;
 	switch(val) {
 		case 0:
@@ -233,7 +248,7 @@ char getVal(char** map, int map_size, mapPos pos, int val) {
  *
  * @return     Qual direção o bot deveria seguir.
  */
-int random_move(char** map, int map_size, mapPos pos) {
+int random_move(char** map, int map_size_x, int map_size_y, mapPos pos) {
 	srand(time(NULL));
 	int val = 0;
 	int done[4] = {0};
@@ -247,7 +262,7 @@ int random_move(char** map, int map_size, mapPos pos) {
 			sum += done[val];
 		}
 	}
-	while(getVal(map, map_size, mapPos, val) != '0' && sum < 4);
+	while(getVal(map, map_size_x, map_size_y, pos, val) != '0' && sum < 4);
 
 	return val;
 }
@@ -266,7 +281,7 @@ int random_move(char** map, int map_size, mapPos pos) {
  *
  * @return     O lado a mover
  */
-int minimax_move(char** map, int map_size, mapPos* pos, int player_num, int bot_player) {
+int minimax_move(char** map, int map_size_x, int map_size_y, mapPos* pos, int player_num, int bot_player) {
 	int move = 0;
 
 	// Itera em todos os 4 movimentos possíveis.
@@ -290,7 +305,7 @@ int minimax_move(char** map, int map_size, mapPos* pos, int player_num, int bot_
  *
  * @return     { description_of_the_return_value }
  */
-int move(char** map, int map_size, mapPos pos) {
+int move(char** map, int map_size_x, int map_size_y, mapPos pos) {
 	int move = 0, stay = 1;
 
 	while(stay) {
@@ -305,7 +320,7 @@ int move(char** map, int map_size, mapPos pos) {
 				}
 				break;
 			case 1:
-				if(pos.y <= map_size) {
+				if(pos.y <= map_size_y) {
 					if(map[pos.y + 1][pos.x] == 0) {
 						stay = 0;
 					}	
@@ -319,7 +334,7 @@ int move(char** map, int map_size, mapPos pos) {
 				}
 				break;
 			case 3:
-				if(pos.x <= map_size) {
+				if(pos.x <= map_size_x) {
 					if(map[pos.y][pos.x + 1] == 0) {
 						stay = 0;
 					}	
@@ -333,15 +348,15 @@ int move(char** map, int map_size, mapPos pos) {
 }
 
 // mapPos findPlayer(char** map, int map_size, int player, mapPos old_pos) {
-void findPlayer(char** map, int map_size, int player, mapPos *old_pos) {
+void findPlayer(char** map, int map_size_x, int map_size_y, int player, mapPos *old_pos) {
 	// mapPos pos;
 	int i, j;
 
 	// Checa se o bot inicializou agora
 	// if(old_pos.x == -1 || old_pos.y == -1) {
 		// Encontra a posição de um determinado player
-		for (i = 0; i < map_size; ++i) {
-			for (j = 0; j < map_size; ++j) {
+		for (i = 0; i < map_size_x; ++i) {
+			for (j = 0; j < map_size_y; ++j) {
 				if(map[i][j] == 'A'+player) {
 					printf("pos: %d | %d\n", i, j);
 					old_pos->x = i;
