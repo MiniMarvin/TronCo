@@ -46,17 +46,18 @@ int main(int argc, char **argv){
 
     // inicializa com a direção inicial de cada player.
     for (i = 0; i < MAXCLIENTS; ++i) {
-      buff_dir[i] = 1;
+      // buff_dir[i] = 0;
       serverPackage.statusPlayer = 1; // Significa que ele esta vivo
     }
 
     //// debugar direcao dos clients **********************************************8
     player jogador[MAXCLIENTS];
-    jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = DOWN;
-    jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = DOWN;
+    jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = buff_dir[0] = DOWN;
+    jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = buff_dir[1] = DOWN;
     // jogador[2].x = SIZEX - 1; jogador[2].y = SIZEY - 1; jogador[2].dir = LEFT; // iniciando o y no lugar errado
-    jogador[2].x = SIZEX/2; jogador[2].y = SIZEY/2; jogador[2].dir = UP; // iniciando o y no lugar errado
-    jogador[3].x = 0; jogador[3].y = SIZEY - 1; jogador[3].dir = RIGHT;  
+    jogador[2].x = SIZEX - 1; jogador[2].y = 0; jogador[2].dir = buff_dir[2] = LEFT; // iniciando o y no lugar errado
+    // jogador[3].x =  SIZEX - 1; jogador[3].y = SIZEY - 1; jogador[3].dir = buff_dir[3] = RIGHT;  
+    jogador[3].x =  SIZEX - 10; jogador[3].y = SIZEY/2; jogador[3].dir = buff_dir[3] = RIGHT;  
  
 
     char matrizJogo[SIZEX][SIZEY];
@@ -116,7 +117,7 @@ int main(int argc, char **argv){
             buff_pos_anteriorX[id] = jogador[id].x;
             buff_pos_anteriorY[id] = jogador[id].y;
 
-            printf("jogador: %d | x: %d | y: %d", id, jogador[id].x, jogador[id].y);
+            printf("jogador: %d | x: %d | y: %d | dir: ", id, jogador[id].x, jogador[id].y);
 
             switch(jogador[id].dir){
               case UP:

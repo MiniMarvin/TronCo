@@ -122,7 +122,7 @@ int o_jogo(){
 	bool sair = false;
 	int tecla = 0;
 	int posX = 20, posY = 20;
-	int direcao = 10, buff_direcao = 1;
+	int direcao = 10, buff_direcao = 10;
 	int i, j; 
 	int sizeQuadrado = 8;// matrizQuadrado[600][480];
 	int xInicial = 2, yInicial = 2;
