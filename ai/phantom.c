@@ -166,13 +166,13 @@ int main(int argc, char const *argv[]) {
 		printf("ingame: %d | %d\n", pos.x, pos.y);
 
 		// Controla a movimentação do personagem.
-		// direcao = move(map, map_size, pos);
-		// do
-		// {
-		// 	direcao = rand()%4;
-		// } while (direcao == 2);
+		direcao = move(map, map_size_x, map_size_y, pos);
+		do
+		{
+			direcao = rand()%4;
+		} while (direcao == 2);
 		
-		direcao = random_move(map, map_size_x, map_size_y, pos);
+		// direcao = random_move(map, map_size_x, map_size_y, pos);
 
 		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
 

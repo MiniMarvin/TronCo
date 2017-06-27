@@ -1,3 +1,7 @@
+/**
+ * OBS: O X é a variação vertical e o Y é a variação horizontal!!!
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -48,16 +52,14 @@ int main(int argc, char **argv){
 
     //// debugar direcao dos clients **********************************************8
     player jogador[MAXCLIENTS];
-    jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = UP;
+    jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = DOWN;
     jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = DOWN;
-    jogador[2].x = SIZEX - 1; jogador[2].y = 0; jogador[2].dir = RIGHT;
-    jogador[3].x = SIZEX - 1; jogador[3].y = SIZEY - 1; jogador[3].dir = LEFT;  
+    // jogador[2].x = SIZEX - 1; jogador[2].y = SIZEY - 1; jogador[2].dir = LEFT; // iniciando o y no lugar errado
+    jogador[2].x = SIZEX/2; jogador[2].y = SIZEY/2; jogador[2].dir = UP; // iniciando o y no lugar errado
+    jogador[3].x = 0; jogador[3].y = SIZEY - 1; jogador[3].dir = RIGHT;  
  
 
     char matrizJogo[SIZEX][SIZEY];
-
-
-    
 
     serverInit(MAXCLIENTS);
 
@@ -84,6 +86,11 @@ int main(int argc, char **argv){
         }
         
 
+        // if(id == 2) {
+        //   printf("\ndireção original: %d", jogador[id].dir);
+        //   return 0;
+        // }
+
         // printf("2:\n");
         // printMatrix(matrizJogo);
 
@@ -94,7 +101,9 @@ int main(int argc, char **argv){
         if(retorno.status == MESSAGE_OK){
 
             id = retorno.client_id;
-            jogador[id].dir = clientPackage.dir;
+            if(clientPackage.dir <= 4) {
+              jogador[id].dir = clientPackage.dir;
+            }
 
             //impede o jogador de virar para trás.
             if(jogador[id].dir == UP && buff_dir[id] == DOWN) jogador[id].dir = DOWN;
@@ -107,18 +116,24 @@ int main(int argc, char **argv){
             buff_pos_anteriorX[id] = jogador[id].x;
             buff_pos_anteriorY[id] = jogador[id].y;
 
+            printf("jogador: %d | x: %d | y: %d", id, jogador[id].x, jogador[id].y);
+
             switch(jogador[id].dir){
-              case 0:
+              case UP:
                   jogador[id].x--;
+                  // jogador[id].y--;
                   break;
-              case 1:
+              case DOWN:
                   jogador[id].x++;
+                  // jogador[id].y++;
                   break;
-              case 2:
+              case LEFT:
                   jogador[id].y--;
+                  // jogador[id].x--;
                   break;
-              case 3:
+              case RIGHT:
                   jogador[id].y++;
+                  // jogador[id].y++;
                   break;
             }
 
@@ -143,16 +158,20 @@ int main(int argc, char **argv){
               // Recoloca o player em sua posição original do tabuleiro
               switch(id){
                 case 0:
-                  jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = UP;
-                  buff_dir[0] = 1;
+                  jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = DOWN;
+                  buff_dir[0] = DOWN;
                   break;
                 case 1:
                   jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = DOWN;
+                  buff_dir[0] = DOWN;
                   break;
                 case 2:
-
+                  jogador[2].x = SIZEX - 1; jogador[2].y = SIZEY - 1; jogador[2].dir = LEFT;
+                  buff_dir[0] = LEFT;
                   break;
                 case 3:
+                  jogador[3].x = 0; jogador[3].y = SIZEY - 1; jogador[3].dir = RIGHT;
+                  buff_dir[0] = RIGHT;
                   break;
               }
               pontuacao = 0;
@@ -162,7 +181,7 @@ int main(int argc, char **argv){
             // Jogador continua vivo
             else {
               printf("\nAVISO - CUIDADO - PRIMEIRO:\n");
-              printMatrix(matrizJogo);
+              // printMatrix(matrizJogo);
               // salvamos corpo + id, ja que 'a' + 1 = 'b'
               matrizJogo[jogador[id].x][jogador[id].y] = cabeca + id;
               matrizJogo[buff_pos_anteriorX[id]][buff_pos_anteriorY[id]] = corpo + id;
@@ -170,22 +189,22 @@ int main(int argc, char **argv){
               sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
             }
             printf("\nAVISO - CUIDADO:\n");
-            printMatrix(matrizJogo);
+            // printMatrix(matrizJogo);
             // if(id == 1){ 
             //   printf("OI CARAIIIII\n");
             //   printf("%d %d\n",jogador[1].x, jogador[1].y);
             // }
 
-            puts("Enviando respostas...");
+            puts("Enviando respostas...\n");
             for(i = 0; i < SIZEX; i++){
               for(j = 0; j < SIZEY; j++){
                  serverPackage.matriz[i][j] = matrizJogo[i][j];
-                 printf("%c",serverPackage.matriz[i][j]);
+                 // printf("%c",serverPackage.matriz[i][j]);
                  // if(serverPackage.matriz[i][j] != '0' && serverPackage.matriz[i][j] != 'a' && serverPackage.matriz[i][j] != 'A'){
                  //  printf("\n\n\n%d\n\n\n", serverPackage.matriz[i][j]);
                  // }
               }
-              printf("\n");
+              // printf("\n");
             }
             
         }
