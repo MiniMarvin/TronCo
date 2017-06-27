@@ -192,6 +192,10 @@ int main(int argc, char **argv){
               }
               printf("\n");
             }
+
+            //adiciona id do jogador no pacote
+            serverPackage.client_id = id;
+            printf("id: %d\n", serverPackage.client_id);
             sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
         }
 

@@ -16,11 +16,35 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
     return false;
   }
 
+  /************************************************************************************
+   * Inicialização e reajuste do display para caber na tela
+   ************************************************************************************/
+  // Gera um display 100% da tela
+  al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+  // *display = al_create_display(windowWidth, windowHeight);
+
   *display = al_create_display(1550, 870);
   if(!display) {
     fprintf(stderr, "failed to create display!\n");
     return -1;
   }
+
+  int windowWidth = al_get_display_width(*display);
+  int windowHeight = al_get_display_height(*display);
+  int screenWidth = 640;
+  int screenHeight = 480;
+
+  float sx = windowWidth / (float)screenWidth;
+  float sy = windowHeight / (float)screenHeight;
+
+  ALLEGRO_TRANSFORM trans;
+  al_identity_transform(&trans);
+  al_scale_transform(&trans, sx, sy);
+  al_use_transform(&trans);
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+  
+
 
   *fila_eventos = al_create_event_queue();
   if(!fila_eventos) {
@@ -38,6 +62,8 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
   al_init_primitives_addon();
   al_init_font_addon(); // initialize the font addon
   al_init_ttf_addon();// initialize the ttf (True Type Font) addon
+
+  
 
   al_register_event_source(*fila_eventos, al_get_keyboard_event_source());
   al_register_event_source(*fila_eventos, al_get_display_event_source(*display));

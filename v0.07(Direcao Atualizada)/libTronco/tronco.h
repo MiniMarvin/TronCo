@@ -19,6 +19,7 @@ typedef struct{
 typedef struct{
   char matriz[SIZEX][SIZEY];
   int dir[MAXCLIENTS];
+  int client_id;
   // int status; Inteiro para dizer se o cliente esta vivo no jogo
 }serverMsg;
 

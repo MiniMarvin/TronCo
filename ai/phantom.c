@@ -151,7 +151,14 @@ int main(int argc, char const *argv[]) {
 		 * Comunica com o servidor e carrega o allegro.
 		 */
 		recvMsgFromServer(&serverPackage, DONT_WAIT);
+
+		// Atualiza qual player é o que está sendo usado
+		jogador = serverPackage.client_id;
+		printf("jogador: %d | pack: %d\n", jogador, serverPackage.client_id);
+
 		printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
+
+		
 
 		// Encontra a posição do player 0
 		// pos = findPlayer(map, map_size, jogador, pos);
@@ -160,11 +167,13 @@ int main(int argc, char const *argv[]) {
 
 		// Controla a movimentação do personagem.
 		// direcao = move(map, map_size, pos);
-		do
-		{
-			direcao = rand()%4;
-		} while (direcao == 2);
+		// do
+		// {
+		// 	direcao = rand()%4;
+		// } while (direcao == 2);
 		
+		direcao = random_move(map, map_size_x, map_size_y, pos);
+
 		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
 
 		// for (int i = 0; i < 10000; ++i);
@@ -223,16 +232,20 @@ char getVal(char** map, int map_size_x, int map_size_y, mapPos pos, int val) {
 	char character = 0;
 	switch(val) {
 		case 0:
-			character = map[pos.x - 1][pos.y];
+			if(pos.x > 0)
+				character = map[pos.x - 1][pos.y];
 			break;
 		case 1:
-			character = map[pos.x + 1][pos.y];
+			if(pos.x <= map_size_x)
+				character = map[pos.x + 1][pos.y];
 			break;
 		case 2:
-			character = map[pos.x][pos.y - 1];
+			if(pos.y > 0)
+				character = map[pos.x][pos.y - 1];
 			break;
 		case 3:
-			character = map[pos.x][pos.y + 1];
+			if(pos.y <= map_size_y)
+				character = map[pos.x][pos.y + 1];
 			break;
 	}
 
