@@ -89,7 +89,7 @@ void printData(data* banco_Dados, int limit) {
 void pegarDados(data** banco_Dados, int count) {
 	
 	int i;
-	data* tmp = *banco_Dados;
+	data* tmp = NULL;
 	if(tmp != NULL) {
 		free(tmp);
 		tmp = (data*) malloc(count*sizeof(data));

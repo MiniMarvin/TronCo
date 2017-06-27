@@ -3,7 +3,7 @@
  
 typedef struct {
 	int id;
-	char nome[50];
+	char nome[10];
 	int score;
 } data;
 
@@ -48,9 +48,9 @@ void saveData(FILE* arq, data* banco_Dados, int limit);
  * @param      banco_Dados  O banco de dados que armazenará essas informações
  * @param      limit        Quantas informações foram lidas
  */
-int readData(FILE* arq, data** banco_Dados);
+void readData(FILE* arq, data** banco_Dados);
 
-
+int fileLenght(FILE* arq);
 
 
 #endif
