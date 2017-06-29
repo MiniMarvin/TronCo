@@ -1,7 +1,6 @@
 #ifndef __TRONCO_GAME_H__
 #define __TRONCO_GAME_H__
 
-#include "highscore.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,19 +8,20 @@
 
 #define SIZEX 25
 #define SIZEY 45
-#define WIDTH 1550
-#define HEIGTH 870
+#define WIDTH 1450
+#define HEIGTH 815
+#define MAXCLIENTS 4 //Se ligar na biblioteca deles
 
 typedef struct{
   int dir;
-} clientMsg;
+}clientMsg;
 
 typedef struct{
   char matriz[SIZEX][SIZEY];
-  int scores[4];
-  int names[4][10];
+  int dir[MAXCLIENTS];
+  int statusPlayer;
   // int status; Inteiro para dizer se o cliente esta vivo no jogo
-} serverMsg;
+}serverMsg;
 
 /**
  * @brief      Espera um tempo em mili segundos.

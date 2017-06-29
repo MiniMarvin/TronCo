@@ -1,14 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-// #include "highscore.h"
-
-
-typedef struct {
-	int id;
-	char nome[50];
-	int score;
-} data;
+#include "highscore.h"
 
 void printData(data* banco_Dados, int limit);
 void pegarDados(data** banco_Dados, int count);
@@ -31,6 +24,8 @@ int main(int argc, char const *argv[]) {
 	
 	data* banco_Gravacao = NULL;
 	
+	data highscore[5];
+
 	// Abre o arquivo no modo anexar
 	openFile(&arq);
 	// arq = fopen("highScore.txt", "a+");
@@ -44,22 +39,26 @@ int main(int argc, char const *argv[]) {
 		
 			switch(ch) {
 				case 'a':
-					saveData(arq, banco_Gravacao, 2);
+					saveData(arq, banco_Gravacao, 5);
 					break;
 				case 'r':
-					limit = readData(arq, &banco_Dados);
+					readData(arq, &banco_Dados);
+					printf("%s %d\n", banco_Dados[0].nome, banco_Dados[0].score);
 					break;
 				case 'o':
 					organizateData(arq);
 					break;
 				case 'p':
+					limit = fileLength(arq);
 					printData(banco_Dados, limit);
 					break;
 				case 'g':
-					pegarDados(&banco_Gravacao, 2);
+					pegarDados(&banco_Gravacao, 5);
 					// for (i = 0; i < 2; i++) {
 					// 	printf("%s %d\n", banco_Gravacao[i].nome, banco_Gravacao[i].score);
 					// }
+				case 'c':
+					copyRankingToSend(highscore, banco_Dados);
 					break;
 			}
 		}
@@ -75,35 +74,22 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-
-void printData(data* banco_Dados, int limit) {
-	
-	int i = 0;
-	for ( i = 0; i < limit; i++) {
-		printf("%d %s %d\n", i+1, banco_Dados[i].nome, banco_Dados[i].score);
-	}
-	
-}
-
-
 void pegarDados(data** banco_Dados, int count) {
 	
 	int i;
-	data* tmp = NULL;
-	if(tmp != NULL) {
-		free(tmp);
-		tmp = (data*) malloc(count*sizeof(data));
-	} else {
-		tmp = (data*) malloc(count*sizeof(data));
-	}
+
+	if(*banco_Dados != NULL)
+		free(*banco_Dados);
+
+	*banco_Dados = (data*) malloc(count*sizeof(data));
+	
 	
 	for (i = 0; i < count; i++) {
 	
-		scanf(" %s %d", tmp[i].nome, &tmp[i].score);
+		scanf(" %s %d", (*banco_Dados)[i].nome, &(*banco_Dados)[i].score);
 		// printf("%s %d\n", tmp[i].nome, tmp[i].score);
 	}
 	
-	*banco_Dados = tmp;
 	
 	printf("Exit\n");
 }

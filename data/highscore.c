@@ -43,49 +43,58 @@ FILE* organizateData(FILE* arq) {
 	int limit = fileLength(arq);
 	readData(arq, &banco_Dados);
 
-	//Reabre o arquivo apagando tudo o que havia sido salvo anteriormente
-	arq = freopen("highScore.txt", "w+", arq);
+	printf("Limit: %d\n", limit);
 	
-	// 5 Highscores Salvos
-	for(i = limit; i >= 0; i--) {
+	if(limit != 0) {
+		// printf("On organizateData: \n");
+		// printData(banco_Dados, limit);
+		//Reabre o arquivo apagando tudo o que havia sido salvo anteriormente
+		arq = freopen("highScore.txt", "w+", arq);
+		
+		// 5 Highscores Salvos
+		for(i = 0; i < limit; i++) {
 
-		for(j = i; j >= 0; j--) {
-			
-			//Organiza do maior para o menor
-			if(banco_Dados[ j].score > banco_Dados[ i].score) {
+			for(j = i; j < limit; j++) {
 				
-				tmp = banco_Dados[ i];
-				banco_Dados[ i] = banco_Dados[ j];
-				banco_Dados[ j] = tmp;
+				
+				if(banco_Dados[ j].score > banco_Dados[ i].score) {
+					
+					tmp = banco_Dados[ i];
+					banco_Dados[ i] = banco_Dados[ j];
+					banco_Dados[ j] = tmp;
+					
+				}
+					
 				
 			}
-				
 			
+			//Salva o novo highscore organizado no mesmo arquivo
+			
+			// Debug
+			printf("%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
+			// fprintf(arq, "%d %s %d\n", aux, banco_Dados[i].nome, banco_Dados[i].score);
 		}
+
+		for(i = 0; i < MAX_SAVED  - 1; i++) {
+
+			fprintf(arq, "%d %s %d\n", i+1, banco_Dados[i].nome, banco_Dados[i].score);
+			
+			//Aumenta o indice do score
+			// printf("%s %d\n", banco_Dados[i].nome, banco_Dados[i].score);
+
+		}
+
+		// printf("Aux outside: %d\n", aux);
+		fprintf(arq, "%d %s %d", i+1, banco_Dados[i].nome, banco_Dados[i].score);
 		
-		//Salva o novo highscore organizado no mesmo arquivo
+		fclose(arq);
 		
-		// Debug
-		// printf("%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
+		openFile(&arq);
+		//Debug
+		printf("Organizado!\n");
+	} else {
+		printf("Arquivo zerado!\n");
 	}
-
-	for(i = MAX_SAVED; i >= 1; i--) {
-
-		fprintf(arq, "%d %s %d\n", aux, banco_Dados[i].nome, banco_Dados[i].score);
-		
-		//Aumenta o indice do score
-		aux++;
-
-	}
-
-
-	fprintf(arq, "%d %s %d", aux, banco_Dados[i].nome, banco_Dados[i].score);
-	
-	fclose(arq);
-	
-	openFile(&arq);
-	//Debug
-	printf("Organizado!\n");
 	return arq;
 }
 
@@ -98,6 +107,9 @@ FILE* organizateData(FILE* arq) {
  * @param[in]  limit        Limite de highscores que serão salvos no arquivo highScore.txt
  */
 void saveData(FILE* arq, data* banco_Dados, int limit) {
+
+	int arq_len = fileLength(arq);
+	arq_len++;
 
 	//Move o cursor para o fim do arquivo
 	fseek(arq, 0, SEEK_END);
@@ -118,21 +130,23 @@ void saveData(FILE* arq, data* banco_Dados, int limit) {
 		fprintf(arq, "\n");
 	}
 	
+
 	
 	for ( i = 0; i < limit - 1; ++i) {
 	
 		// fprintf(arq1, "%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
-		fprintf(arq, "%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
+		fprintf(arq, "%d %s %d\n", arq_len, banco_Dados[i].nome, banco_Dados[i].score);
+		arq_len++;
 	}
 	// printf("%d %s %d\n", i, banco_Dados[i].nome, banco_Dados[i].score);
 	// fprintf(arq1, "%d %s %d", i, banco_Dados[i].nome, banco_Dados[i].score);
-	fprintf(arq, "%d %s %d", i, banco_Dados[i].nome, banco_Dados[i].score);
+	fprintf(arq, "%d %s %d", arq_len, banco_Dados[i].nome, banco_Dados[i].score);
 	
 	// organizateData(arq1);
 	
 	
 	//Organiza os scores antes de sair
-	organizateData(arq);
+	organizateData(arq);	
 	
 	// fclose(arq1);
 	
@@ -162,21 +176,17 @@ void readData(FILE* arq, data** banco_Dados) {
 
 	data* tmp;
 
+
+	int arq_len = fileLength(arq);
+	printf("Tam: %d\n", arq_len);
+
 	//Move o cursor para o início do arquivo
 	rewind(arq);
 
 	char str[100];
-	int arq_len = 0;
-
-	while(fgets(str, sizeof(str), arq) != NULL) {
-		arq_len++;
-	}
-	printf("Tam: %d\n", arq_len);
 
 	// printf("Alocado\n");
 	*banco_Dados = (data*) malloc(arq_len*sizeof(data)); 
-
-	rewind(arq);
 
 	int i = 0;   
 	
@@ -185,7 +195,7 @@ void readData(FILE* arq, data** banco_Dados) {
 	// 	i++;
 	// 	// printf("Lendo\n");
 	// }
-	while( i < MAX_SAVED ) {
+	while( i < arq_len ) {
 		
 		fscanf(arq, "%d %s %d", &(*banco_Dados)[i].id, (*banco_Dados)[i].nome, &(*banco_Dados)[i].score);
 		i++;
@@ -196,12 +206,28 @@ void readData(FILE* arq, data** banco_Dados) {
 	// 	free(*banco_Dados);
 	// *banco_Dados = tmp;
 	
+
+	printf("On readData: \n");
+	printData(*banco_Dados, arq_len);
+
 	//Debug
 	printf("Lido!\n");
 
 	// return arq_len;
 	// return banco_Dados;
 }
+
+
+
+void printData(data* banco_Dados, int limit) {
+	
+	int i = 0;
+	for ( i = 0; i < limit; i++) {
+		printf("%d %s %d\n", i+1, banco_Dados[i].nome, banco_Dados[i].score);
+	}
+	
+}
+
 
 
 int fileLength(FILE* arq) {
@@ -220,4 +246,16 @@ int fileLength(FILE* arq) {
 
 	return arq_len;
 
+}
+
+void copyRankingToSend(data dest[], data* src) {
+
+	int i;
+	if(src != NULL) {
+		for(i = 0; i < MAX_SAVED; i++) {
+			dest[i] = src[i];
+		}
+		printf("Copy ok\n");
+	} else
+		printf("Copy not ok!\n");
 }

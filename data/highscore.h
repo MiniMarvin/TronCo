@@ -1,6 +1,9 @@
 #ifndef HIGHSCORE_H
 #define HIGHSCORE_H
  
+#include <stdlib.h>
+#include <stdio.h>
+
 typedef struct {
 	int id;
 	char nome[10];
@@ -15,6 +18,13 @@ typedef struct {
  * @return     O ponteiro para o arquivo aberto
  */
 void openFile(FILE** arq);
+
+
+void printData(data* banco_Dados, int limit);
+
+void copyRankingToSend(data dest[], data* src);
+
+int fileLength(FILE* arq);
 
 
 /**
@@ -50,7 +60,7 @@ void saveData(FILE* arq, data* banco_Dados, int limit);
  */
 void readData(FILE* arq, data** banco_Dados);
 
-int fileLenght(FILE* arq);
+
 
 
 #endif
