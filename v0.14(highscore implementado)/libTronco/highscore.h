@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MAX_HIGHSCORE 5
-
 typedef struct {
 	int id;
 	char nome[10];
