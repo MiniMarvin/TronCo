@@ -36,7 +36,7 @@ ALLEGRO_BITMAP *imagem = NULL;
 ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
 
 //musiquinha
-  ALLEGRO_SAMPLE *sample=NULL;
+ALLEGRO_SAMPLE *sample=NULL;
 
 int menu();
 int jogo();
@@ -84,9 +84,12 @@ int main(int argc, char **argv) {
 				break;
 
 			case 2:
-				estado = ranking();
+				estado = telaRanking();
 				break;
 			case 3:
+				//Se nao tiver se conectado vai levar broken pipe, papai
+				clientPackage.gameOption = WANNA_QUIT;
+				sendMsgToServer(&clientPackage, sizeof(clientPackage));
 				running = false;
 				break;
 		}
@@ -511,6 +514,42 @@ void configuraNome(){
 	}
 }
 
+
+int telaRanking(data *highscore){
+	
+	bool concluido = false;
+	
+	clientMsg clientPackage;
+	serverMsg serverPackage;
+
+	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);
+	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
+
+	imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
+   	al_draw_bitmap(imagem, 0, 0, 0);
+	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 100,ALLEGRO_ALIGN_CENTRE, "Ranking - TRONco");
+	for(int i = 0; i < QNT_HIGHSCORE_SAVED; i++){
+		intToString(pontuacao, highscore[i].score);
+		al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, highscore[i].nome);
+		al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 100, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, pontuacao);
+	}
+	al_flip_display();
+
+	// ENQUANTO NÃO FOR PRESSIONADO O ENTER O JOGADOR CONTINUA FORA DO GAME
+	while(concluido == false){
+		while (!al_is_event_queue_empty(fila_eventos)){
+		        ALLEGRO_EVENT evento;
+		        al_wait_for_event(fila_eventos, &evento);
+		        if (evento.type == ALLEGRO_EVENT_KEY_CHAR){
+		    		if(evento.keyboard.keycode == 'C'){// O caracter 'C' significa que o Enter foi Apertado
+		            	concluido = true;
+			        }
+		    }
+		}
+	}	
+	return 0;
+}
+
 int ranking() {
 
 	printf("Ranking OK!\n");
@@ -519,8 +558,7 @@ int ranking() {
 	clientMsg package;
 	serverMsg recv_package;
 
-
-	package.wantHighscore = 1;
+	package.wantHighscore = WANT_HIGHSCORE;
 	// statusConnection.response = 2;
 	sendMsgToServer(&package, sizeof(clientMsg));
 
@@ -529,7 +567,9 @@ int ranking() {
 	recvMsgFromServer(&recv_package, WAIT_FOR_IT);
 	// 	// if(msgFromServer != NO_MESSAGE) {
 	printf("Highscore received\n");
+	
 	printData(recv_package.highscore, 3);
+	telaRanking(recv_package.highscore);
 
 	return 0;
 }

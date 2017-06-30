@@ -46,7 +46,7 @@ int main(int argc, char **argv){
     int buff_dir[MAXCLIENTS]; // Buffer de direção do jogador
     int buff_pos_anteriorX[MAXCLIENTS]; // Buffer da posicao anterior para poder colocar a cabeca da Cobra no local correto
     int buff_pos_anteriorY[MAXCLIENTS]; // Buffer da posicao anterior para poder colocar a cabeca da Cobra no local correto
-
+    int players_count = 0; // 
 
     clientMsg clientPackage;
     serverMsg serverPackage;
@@ -65,14 +65,11 @@ int main(int argc, char **argv){
     player jogador[MAXCLIENTS];
     jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = buff_dir[0] = DOWN;
     jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = buff_dir[1] = DOWN;
-    // jogador[2].x = SIZEX - 1; jogador[2].y = SIZEY - 1; jogador[2].dir = LEFT; // iniciando o y no lugar errado
     jogador[2].x = SIZEX - 1; jogador[2].y = 0; jogador[2].dir = buff_dir[2] = LEFT; // iniciando o y no lugar errado
-    // jogador[3].x =  SIZEX - 1; jogador[3].y = SIZEY - 1; jogador[3].dir = buff_dir[3] = RIGHT;  
     jogador[3].x =  SIZEX - 10; jogador[3].y = SIZEY/2; jogador[3].dir = buff_dir[3] = RIGHT;  
  
 
     char matrizJogo[SIZEX][SIZEY];
-
     serverInit(MAXCLIENTS);
 
 
@@ -88,41 +85,29 @@ int main(int argc, char **argv){
         int id = acceptConnection();
 
         serverPackage.statusPlayer = 1;
-        //sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
-
-        // printf("1:\n");
-        // printMatrix(matrizJogo);
 
         if(id != NO_CONNECTION){
           printf("Alguem se Conectou com ID %d\n", id);
+          players_count++;
         }
         
-
-        // if(id == 2) {
-        //   printf("\ndireção original: %d", jogador[id].dir);
-        //   return 0;
-        // }
-
-        // printf("2:\n");
-        // printMatrix(matrizJogo);
-
         retorno = recvMsg(&clientPackage);
-        // printf("3:\n");
-        // printMatrix(matrizJogo);
-
-        if(retorno.status == MESSAGE_OK){
+        
+        if(retorno.status == MESSAGE_OK) {
 
           id = retorno.client_id;
 
-          if(clientPackage.wantHighscore == 1) {
+          if(clientPackage.gameOption == WANT_HIGHSCORE) {
             printf("Sending highscore to id: %d\n", id);
-
-            sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
-
-          } else {
-
+            sendMsgToClient(score, sizeof(data), id);
+          } else if(clientPackage.gameOption == WANNA_QUIT) {
+            if(players_count > 0) players_count--;
+            // ESPACO PARA COUNT-- LOGICA DE CAIO
+            disconnectClient(id);
+          } else if(clientPackage.gameOption == WANNA_PLAY){
             
-            if(clientPackage.dir <= 4) {
+            // Verifica se a direção é válida
+            if(clientPackage.dir <= 4 && clientPackage.dir >= 0) {
               jogador[id].dir = clientPackage.dir;
             }
 
@@ -171,38 +156,39 @@ int main(int argc, char **argv){
             // Player acertou os limites do jogo
             if(jogador[id].x >= SIZEX || jogador[id].y >= SIZEY ||
               jogador[id].x < 0 || jogador[id].y < 0 || matrizJogo[jogador[id].x][jogador[id].y] != '0') {
-              serverPackage.statusPlayer = 0;
-              sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
-              //#ifdef RESTART_GAME
-              // Remove o rastro do jogador do jogo.
-              serverPackage.pontuacao = cleanMatrix(matrizJogo, id);
-              
-              data save;
-              strcpy(save.nome, clientMsg.nome);
-              save.score = pontuacao;
-              saveData(score_file, &data, 1);
-              // Recoloca o player em sua posição original do tabuleiro
-              switch(id){
-                case 0:
-                  jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = DOWN;
-                  buff_dir[0] = DOWN;
-                  break;
-                case 1:
-                  jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = DOWN;
-                  buff_dir[0] = DOWN;
-                  break;
-                case 2:
-                  jogador[2].x = SIZEX - 1; jogador[2].y = SIZEY - 1; jogador[2].dir = LEFT;
-                  buff_dir[0] = LEFT;
-                  break;
-                case 3:
-                  jogador[3].x = 0; jogador[3].y = SIZEY - 1; jogador[3].dir = RIGHT;
-                  buff_dir[0] = RIGHT;
-                  break;
+                
+                serverPackage.statusPlayer = 0;
+                sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
+                //#ifdef RESTART_GAME
+                // Remove o rastro do jogador do jogo.
+                serverPackage.pontuacao = cleanMatrix(matrizJogo, id);
+                
+                data save;
+                strcpy(save.nome, clientMsg.nome);
+                save.score = pontuacao;
+                saveData(score_file, &data, 1);
+                // Recoloca o player em sua posição original do tabuleiro
+                switch(id){
+                  case 0:
+                    jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = DOWN;
+                    buff_dir[0] = DOWN;
+                    break;
+                  case 1:
+                    jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = DOWN;
+                    buff_dir[0] = DOWN;
+                    break;
+                  case 2:
+                    jogador[2].x = SIZEX - 1; jogador[2].y = SIZEY - 1; jogador[2].dir = LEFT;
+                    buff_dir[0] = LEFT;
+                    break;
+                  case 3:
+                    jogador[3].x = 0; jogador[3].y = SIZEY - 1; jogador[3].dir = RIGHT;
+                    buff_dir[0] = RIGHT;
+                    break;
               }
               pontuacao = 0;
-              disconnectClient(id);
-              //#endif
+              //disconnectClient(id);
+              // #endif
             }
             // Jogador continua vivo
             else {
@@ -235,7 +221,11 @@ int main(int argc, char **argv){
             
         }
       }
-
+      else {
+        if(players_count > 0) {
+          players_count--;
+        }
+      }
         
     }
    return 0;

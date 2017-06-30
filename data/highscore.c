@@ -4,7 +4,7 @@
 #include "highscore.h"
 
 
-#define MAX_SAVED 5
+#define QNT_HIGHSCORE_SAVED 5
 
 /**
  * @brief      Abre um arquivo no modo anexar

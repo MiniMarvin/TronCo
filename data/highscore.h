@@ -26,6 +26,7 @@ void printData(data* banco_Dados, int limit);
 
 void copyRankingToSend(data dest[], data* src);
 
+
 int fileLength(FILE* arq);
 
 

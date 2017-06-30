@@ -13,14 +13,14 @@
 #define HEIGTH 815
 #define MAXCLIENTS 4 //Se ligar na biblioteca deles
 #define SIZE_NOME 10
-
-typedef struct {
-  data highscore[5];
-} highscore;
+#define WANT_HIGHSCORE 1
+#define WANNA_PLAY 2
+#define WANNA_QUIT 3
 
 typedef struct{
   int dir;
-  int wantHighscore;
+  // int wantHighscore;
+  int gameOption;
   char nome[SIZE_NOME];
 }clientMsg;
 
@@ -31,7 +31,7 @@ typedef struct{
   int pontuacao;
   int flagVitoria; // 1 - Se foi o Vencedor 0 - se foi Perdedor
   // int status; Inteiro para dizer se o cliente esta vivo no jogo
-  // data highscore[5];
+  data highscore[5];
 }serverMsg;
 
 /**
