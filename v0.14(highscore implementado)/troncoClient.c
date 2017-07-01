@@ -31,7 +31,8 @@ int telaDerrota();
 int telaVitoria();
 void intToString(char pontuacao[], int numero);
 int ranking();
-void printStartScreen();
+int printStartScreen();
+int telaRanking(data *highscore);
 
 char ip[17];
 char nome[17];
@@ -48,7 +49,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	printStartScreen();	 
+	printStartScreen();
 
 	/*
 	0 = menu
@@ -65,13 +66,15 @@ int main(int argc, char **argv) {
 				estado = jogo();
 				break;
 			case 2:
-				estado = telaRanking();
+				estado = ranking();
 				break;
 			case 3:
 				// Envia essa mensagem para o server para sabermos quando um client desconectou
 				//Se nao tiver se conectado vai levar broken pipe, papai
-				clientPackage.gameOption = WANNA_QUIT;
-				sendMsgToServer(&clientPackage, sizeof(clientPackage));
+				// TODO: definir essa parte, porém, o clientPackage não existe nessa
+				// função, necessário modificar o local onde isso está sendo realizado.
+				// clientPackage.gameOption = WANNA_QUIT;
+				// sendMsgToServer(&clientPackage, sizeof(clientPackage));
 				running = false;
 				break;
 		}
@@ -79,21 +82,21 @@ int main(int argc, char **argv) {
 	 return 0;
 }
 
-void printStartScreen() {
-	
+int printStartScreen() {
+
 	// PROJETO IP - 2017.1
 	// PROFESSOR: ACM
 	// MONITOR: MGM6
-	// ALUNOS: ~CMG ~JKSS ~JRSF ~MAFS3 ~MBGJ ~TAB ~TASM2  
-	
+	// ALUNOS: ~CMG ~JKSS ~JRSF ~MAFS3 ~MBGJ ~TAB ~TASM2
+
 	////////////////////// PARTE PARA COMEÇAR A TOCAR A MUSICA ////////////////////////////
 	int start = 90;
 	intToString(pontuacao, 321);
 	printf("%s", pontuacao);
 	sample = al_load_sample( "Resources/musiquinha.ogg" );
-	
+
 	if (!sample){
-	  printf( "Audio clip sample not loaded!\n" ); 
+	  printf( "Audio clip sample not loaded!\n" );
 	  return -1;
 	}
 
@@ -101,27 +104,27 @@ void printStartScreen() {
 
 	///////////////// INICIALIZAÇÃO DAS FONTES //////////////////////
 	int max_font = 200;
-	int i = 0;	
+	int i = 0;
 	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);;
 	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
 
 	//////////////////////// ANIMAÇÃO DE ENTRADA DO PROGRAMA, COM NOME DO GRUPO, DESENVOLVEDORES E TITULO DO JOGO ////////////////////
-	
+
 	al_clear_to_color(al_map_rgb(0,0,0));
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 100, ALLEGRO_ALIGN_CENTRE, "Projeto IP - 2017.1");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 200, ALLEGRO_ALIGN_CENTRE, "PROFESSOR: ACM");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300, ALLEGRO_ALIGN_CENTRE, "MONITOR: MGM6");
 	al_draw_text(font_small, al_map_rgb(255,255,255), 2, 400, ALLEGRO_ALIGN_CENTRE, "ALUNOS: CMG JKSS JRSF MAFS3 MBGJ TAB TASM2");
-	al_flip_display();	
+	al_flip_display();
 	al_rest(5);
-	
-	int start = 90;
-	
+
+	start = 90;
+
 	for(int i = 0; i <= 200; i = i + 7){
-		al_clear_to_color(al_map_rgb(0,0,0));		
+		al_clear_to_color(al_map_rgb(0,0,0));
 		font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",i,0);
-		al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, start,ALLEGRO_ALIGN_CENTRE, "TRONco");
-		al_flip_display();	
+		al_draw_text(font_big, al_map_rgb(255,255,255), (float) WIDTH/2, (float) start,ALLEGRO_ALIGN_CENTRE, "TRONco");
+		al_flip_display();
 	}
 }
 
@@ -130,53 +133,61 @@ int menu(){
    imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
    int cursorPos = 0;
    bool running = true;
+
+	 ///////////////// INICIALIZAÇÃO DAS FONTES //////////////////////
+	 int max_font = 200;
+	 int i = 0;
+	 ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);;
+	 ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
+
    while(running){
 	   //printar
 	   //printf("%d\n", cursorPos);
 	   al_clear_to_color(al_map_rgb(50,10,70));
 	   al_draw_bitmap(imagem, 0, 0, 0);
-	   al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, start,ALLEGRO_ALIGN_CENTRE, "TRONco");
+	   al_draw_text(font_big, al_map_rgb(255,255,255),(float)  WIDTH/2, start,ALLEGRO_ALIGN_CENTRE, "TRONco");
 	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 200,ALLEGRO_ALIGN_CENTRE, "Jogar");
 	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 400,ALLEGRO_ALIGN_CENTRE, "Ranking");
 	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 600,ALLEGRO_ALIGN_CENTRE, "Sair");
 	   //cursor
 	   al_draw_circle(550, start + 25  + 200*(cursorPos + 1), 20, al_map_rgb(255,255,255), 6);
 	   al_flip_display();
-	
+
 	   //pegar input
 	   int tecla = 0;
 
 	   // MÁQUINA DE ESTADOS PARA MOVIMENTAÇÃO DA BOLINHA QUE SIMBOLIZA O CURSOR
 	   // RETORNA O VALOR DO CURSO QUANDO PRESSIONADO O ENTER
 	   while(!al_is_event_queue_empty(fila_eventos)){
-	  	ALLEGRO_EVENT evento;
-		al_wait_for_event(fila_eventos, &evento);
-	 	if (evento.type == ALLEGRO_EVENT_KEY_DOWN){
+			 ALLEGRO_EVENT evento;
+			 al_wait_for_event(fila_eventos, &evento);
+			 if (evento.type == ALLEGRO_EVENT_KEY_DOWN){
 		        switch(evento.keyboard.keycode){
-				case ALLEGRO_KEY_UP:
-				    tecla = 1;
-				    cursorPos--;
-				    if (cursorPos == -1) cursorPos = 2;
-				    cursorPos = cursorPos%3;
-				    break;
-				case ALLEGRO_KEY_DOWN:
-				    tecla = 2;
-				    cursorPos++;
-                    cursorPos = cursorPos%3;
-				    break;
+						case ALLEGRO_KEY_UP:
+						    tecla = 1;
+						    cursorPos--;
+						    if (cursorPos == -1) cursorPos = 2;
+						    cursorPos = cursorPos%3;
+						    break;
+						case ALLEGRO_KEY_DOWN:
+						    tecla = 2;
+						    cursorPos++;
+						            cursorPos = cursorPos%3;
+						    break;
 
-				case ALLEGRO_KEY_ENTER:
-				    tecla = 3;
-				    running = false;
-				    printf("Cursor: %d\n", cursorPos + 1);
-				    return cursorPos + 1;
-				    //jk = 0;
-				    break;
+						case ALLEGRO_KEY_ENTER:
+						    tecla = 3;
+						    running = false;
+						    printf("Cursor: %d\n", cursorPos + 1);
+						    return cursorPos + 1;
+						    //jk = 0;
+						    break;
+						}
+				}
+				else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+					running = false;
+				}
 			}
-		 }else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
-    	    running = false;
-		 }
-	  }
    }
    //al_rest(10.0);
 
@@ -184,7 +195,7 @@ int menu(){
 }
 
 int jogo(){
-	
+
 	int estado_jogo = 2;
 	/*
 		0 = colocar nome se não tiver nome já cadastrado
@@ -230,7 +241,7 @@ int o_jogo(){
 
 	//nome = configuraNome();
 	if(strlen(ip) == 0){
-		configuraIP();	
+		configuraIP();
 	}
 	configuraNome();
 	//Esse IP irá nos conectar a "nós mesmos", apenas para efeito de testes.
@@ -292,7 +303,7 @@ int o_jogo(){
 			tecla = 0;
 		}
 
-		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.		
+		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
 
 		//recebendo a mensagem
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
@@ -349,7 +360,7 @@ int telaDerrota(){
 			        }
 		    }
 		}
-	}	
+	}
 	return 3; //
 }
 
@@ -383,7 +394,7 @@ int telaVitoria(){
 			        }
 		    }
 		}
-	}	
+	}
 	return 3;
 }
 
@@ -401,7 +412,7 @@ void configuraIP(){
    	al_draw_bitmap(imagem, 0, 0, 0);
 	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 150,ALLEGRO_ALIGN_CENTRE, "TRONco");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 350,ALLEGRO_ALIGN_CENTRE, "Digite o IP para conectar:");
-	al_flip_display(); 
+	al_flip_display();
 
 	ALLEGRO_EVENT evento;
 	al_wait_for_event(fila_eventos, &evento);
@@ -435,7 +446,7 @@ void configuraIP(){
 		            ip[strlen(ip) - 1] = '\0';
 		        }
 		    }
-		}	
+		}
 	}
 }
 
@@ -454,7 +465,7 @@ void configuraNome(){
    	al_draw_bitmap(imagem, 0, 0, 0);
 	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 150,ALLEGRO_ALIGN_CENTRE, "TRONco");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 350,ALLEGRO_ALIGN_CENTRE, "Digite o seu nome:");
-	al_flip_display(); 
+	al_flip_display();
 
 	ALLEGRO_EVENT evento;
 	al_wait_for_event(fila_eventos, &evento);
@@ -485,15 +496,15 @@ void configuraNome(){
 		            nome[strlen(nome) - 1] = '\0';
 		        }
 		    }
-		}	
+		}
 	}
 }
 
 
-int telaRanking(data *highscore){
-	
+int telaRanking(data *highscore) {
+
 	bool concluido = false;
-	
+
 	clientMsg clientPackage;
 	serverMsg serverPackage;
 
@@ -521,7 +532,7 @@ int telaRanking(data *highscore){
 			        }
 		    }
 		}
-	}	
+	}
 	return 0;
 }
 
@@ -542,7 +553,7 @@ int ranking() {
 	recvMsgFromServer(&recv_package, WAIT_FOR_IT);
 	// 	// if(msgFromServer != NO_MESSAGE) {
 	printf("Highscore received\n");
-	
+
 	printData(recv_package.highscore, 3);
 	telaRanking(recv_package.highscore);
 

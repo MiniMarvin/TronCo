@@ -2,8 +2,7 @@
 #include "libAllegro/AllegroCore.h"
 
 
-int main()
-{
+int main() {
     //Inicialização básica do Allegro, como vista no Client
     if(!coreInit())
         return -1;
@@ -47,7 +46,7 @@ int main()
             puts("Também recebi o seguinte valor:");
             printf("%d\n\n", pacote_server.valor);
 
-            
+
             puts("Enviando respostas...");
             strcpy(pacote_server.mensagem, "Olá meu caro cliente!");
             pacote_server.valor = 0+i;

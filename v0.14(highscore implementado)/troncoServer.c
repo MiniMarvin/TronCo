@@ -31,7 +31,7 @@ int cleanMatrix(char matrix[SIZEX][SIZEY], int player);
 void printMatrix(char matrix[SIZEX][SIZEY]);
 
 int main(int argc, char **argv){
-    
+
     FILE* score_file;
     openFile(&score_file);
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv){
 
     bool sair = false;
     int tecla = 0;
-    int i, j, pontuacao = 0; 
+    int i, j, pontuacao = 0;
     int buff_dir[MAXCLIENTS]; // Buffer de direção do jogador
     int buff_pos_anteriorX[MAXCLIENTS]; // Buffer da posicao anterior para poder colocar a cabeca da Cobra no local correto
     int buff_pos_anteriorY[MAXCLIENTS]; // Buffer da posicao anterior para poder colocar a cabeca da Cobra no local correto
@@ -52,12 +52,13 @@ int main(int argc, char **argv){
     int gameStart = 0; // Define se o jogo vai iniciar ou não
     int players_alive = 0; // Define o número de players ainda vivos
     int winner = -1; // Define qual será o player ganhador do jogo
-  
+
     char* clientMatrix = (char*) malloc(sizeof(char)*CLIENTS_LIMIT);
     for (i = 0; i < CLIENTS_LIMIT; i++) {
       clientMatrix[i] = 0;
     }
-    
+
+    data save;
 
     clientMsg clientPackage;
     serverMsg serverPackage;
@@ -77,8 +78,8 @@ int main(int argc, char **argv){
     jogador[0].x = 0; jogador[0].y = 0; jogador[0].dir = buff_dir[0] = DOWN;
     jogador[1].x = 0; jogador[1].y = SIZEY - 1; jogador[1].dir = buff_dir[1] = DOWN;
     jogador[2].x = SIZEX - 1; jogador[2].y = 0; jogador[2].dir = buff_dir[2] = LEFT; // iniciando o y no lugar errado
-    jogador[3].x =  SIZEX - 10; jogador[3].y = SIZEY/2; jogador[3].dir = buff_dir[3] = RIGHT;  
- 
+    jogador[3].x =  SIZEX - 10; jogador[3].y = SIZEY/2; jogador[3].dir = buff_dir[3] = RIGHT;
+
 
     char matrizJogo[SIZEX][SIZEY];
     serverInit(MAXCLIENTS);
@@ -90,60 +91,60 @@ int main(int argc, char **argv){
          printf("%c", matrizJogo[i][j]);
       }
       printf("\n");
-    } 
+    }
 
     while(!sair) {
         int id = acceptConnection();
-  
+
         serverPackage.statusPlayer = GAME_WAITING;
-  
+
         // Verifica se o player já estava logado.
         if(id != NO_CONNECTION){
           printf("Alguem se Conectou com ID %d\n", id);
         }
-        
-        // Recebe o status 
+
+        // Recebe o status
         retorno = recvMsg(&clientPackage);
-        
+
         if(retorno.status == MESSAGE_OK) {
-  
+
           id = retorno.client_id;
-  
+
           if(clientPackage.gameOption == WANT_HIGHSCORE) {
             printf("Sending highscore to id: %d\n", id);
             sendMsgToClient(score, sizeof(data), id);
-          } 
-          
+          }
+
           else if(clientPackage.gameOption == WANNA_QUIT) {
             if(players_count > 0) players_count--;
             disconnectClient(id);
-          } 
-          
+          }
+
           else if(clientPackage.gameOption == WANNA_PLAY) {
-            
+
             if(gameStart == 1) { // Sala Fechada, pode iniciar o jogo.
-              
+
               serverPackage.statusPlayer = GAME_PLAYING; // Informa ao Client que o jogo iniciou
-              
+
               // Verifica se a direção é válida
               if(clientPackage.dir <= 4 && clientPackage.dir >= 0) {
                 jogador[id].dir = clientPackage.dir;
               }
-  
+
               //impede o jogador de virar para trás.
               if(jogador[id].dir == UP && buff_dir[id] == DOWN) jogador[id].dir = DOWN;
               if(jogador[id].dir == LEFT && buff_dir[id] == RIGHT) jogador[id].dir = RIGHT;
               if(jogador[id].dir == DOWN && buff_dir[id] == UP) jogador[id].dir = UP;
               if(jogador[id].dir == RIGHT && buff_dir[id] == LEFT) jogador[id].dir = LEFT;
-  
+
               serverPackage.dir[id] = jogador[id].dir; // Adiciona a direção do player no pacote
-  
+
               // Bufferiza a posição para utilizar no próximo ciclo e evitar andar para trás
               buff_pos_anteriorX[id] = jogador[id].x;
               buff_pos_anteriorY[id] = jogador[id].y;
-  
+
               printf("jogador: %d | x: %d | y: %d | dir: ", id, jogador[id].x, jogador[id].y);
-  
+
               // Atualiza a posição do player
               switch(jogador[id].dir){
                 case UP:
@@ -163,31 +164,31 @@ int main(int argc, char **argv){
                     // jogador[id].y++;
                     break;
               }
-  
+
               buff_dir[id] = jogador[id].dir; // Atualiza a última direção clicada
-              
+
               /********************************************************
                * O Jogador atingiu a condição de morte                *
                ********************************************************/
               // Player acertou os limites do jogo
               if(jogador[id].x >= SIZEX || jogador[id].y >= SIZEY ||
                 jogador[id].x < 0 || jogador[id].y < 0 || matrizJogo[jogador[id].x][jogador[id].y] != '0') {
-                  
-                  
+
+
                   serverPackage.statusPlayer = GAME_LOST;
                   if(players_alive > 0) players_alive--; // Reduz o número de players ainda vivos
-                  
-                  
+
+
                   sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
                   //#ifdef RESTART_GAME
                   // Remove o rastro do jogador do jogo.
                   serverPackage.pontuacao = cleanMatrix(matrizJogo, id);
-                  
-                  data save;
-                  strcpy(save.nome, clientMsg.nome);
+
+
+                  strcpy(save.nome, clientPackage.nome);
                   save.score = pontuacao;
-                  saveData(score_file, &data, 1);
-                  
+                  saveData(score_file, &save, 1);
+
                   // Recoloca o player em sua posição original do tabuleiro
                   switch(id){
                     case 0:
@@ -222,7 +223,7 @@ int main(int argc, char **argv){
                 sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
               }
               printf("\nAVISO - CUIDADO:\n");
-  
+
               // Caso só tenha restado um player o jogador que restou ganha o jogo.
               if(players_alive == 1 && winner == -1) {
                 winner = id;
@@ -230,7 +231,7 @@ int main(int argc, char **argv){
               else if(id == winner) { // Informa Game Won só para o player ganhador
                 serverPackage.statusPlayer = GAME_WON;
               }
-  
+
               puts("Enviando respostas...\n");
               for(i = 0; i < SIZEX; i++){
                 for(j = 0; j < SIZEY; j++){
@@ -243,30 +244,30 @@ int main(int argc, char **argv){
                 // printf("\n");
               }
             }
-            
+
             // Update the number of players in the room
             clientMatrix[id] = 1;
-            
+
             if(gameStart == 0){ // Count the number of players that wanna play before the game start
               players_count = 0;
               for(i = 0; i < MAXCLIENTS; i++) {
                 players_count += clientMatrix[i];
               }
-              
+
               // Checa se o número de players é o número mínimo de clients para jogar
               if(players_count == MAXCLIENTS) {
                 gameStart = 1;
                 players_alive = MAXCLIENTS;
               }
             }
-            
+
       }
       else {
         if(players_count > 0) {
           players_count--;
         }
       }
-    }   
+    }
   }
   return 0;
 }
@@ -293,7 +294,7 @@ void printMatrix(char matrix[SIZEX][SIZEY]) {
   int i, j;
   for (i = 0; i < SIZEX; i++) {
     for (j = 0; j < SIZEY; j++) {
-      printf("%c",matrix[i][j]); 
+      printf("%c",matrix[i][j]);
     }
     printf("\n");
   }
