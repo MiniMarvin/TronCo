@@ -13,9 +13,17 @@
 #define HEIGTH 815
 #define MAXCLIENTS 4 //Se ligar na biblioteca deles
 #define SIZE_NOME 10
+
+// Opções de jogo
 #define WANT_HIGHSCORE 1
 #define WANNA_PLAY 2
 #define WANNA_QUIT 3
+
+// 
+#define GAME_WAITING 0
+#define GAME_PLAYING 1
+#define GAME_WON 2
+#define GAME_LOST 3
 
 typedef struct{
   int dir;
@@ -27,7 +35,7 @@ typedef struct{
 typedef struct{
   char matriz[SIZEX][SIZEY];
   int dir[MAXCLIENTS];
-  int statusPlayer;
+  char statusPlayer;
   int pontuacao;
   int flagVitoria; // 1 - Se foi o Vencedor 0 - se foi Perdedor
   // int status; Inteiro para dizer se o cliente esta vivo no jogo

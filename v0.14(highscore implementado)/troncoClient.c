@@ -11,23 +11,7 @@
 
 #include <time.h>
 
-// #define AZUL al_map_rgb(22, 55, 132)
-// #define VERMELHO al_map_rgb(250, 120, 255)
-// #define JOGADOR1 al_map_rgb(168, 11, 77)
-// #define JOGADOR2 al_map_rgb(107, 180, 12) // VERDE
-
-// #define SIZE 50
-
-// typedef struct{
-//   int dir;
-// }clientMsg;
-
-// typedef struct{
-//   char matriz[SIZE][SIZE];
-//   // int status; Inteiro para dizer se o cliente esta vivo no jogo
-// }serverMsg;
-
-// Exibe uma tela 
+// Ponteiro para exibição de tela
 ALLEGRO_DISPLAY *display = NULL;
 
 ALLEGRO_BITMAP *imagem = NULL;
@@ -35,8 +19,8 @@ ALLEGRO_BITMAP *imagem = NULL;
 // Evento de captura do teclado
 ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;
 
-//musiquinha
-ALLEGRO_SAMPLE *sample=NULL;
+// Ponteiro para a reprodução de música
+ALLEGRO_SAMPLE *sample = NULL;
 
 int menu();
 int jogo();
@@ -58,9 +42,7 @@ int main(int argc, char **argv) {
 	int estado = 0;
 	bool running = true;
 
-	connectToServer("127.0.0.1");
-
-	
+	// connectToServer("127.0.0.1");
 
 	if (!inicializar(&display, &fila_eventos)) {
 		return -1;
@@ -82,11 +64,11 @@ int main(int argc, char **argv) {
 			case 1:
 				estado = jogo();
 				break;
-
 			case 2:
 				estado = telaRanking();
 				break;
 			case 3:
+				// Envia essa mensagem para o server para sabermos quando um client desconectou
 				//Se nao tiver se conectado vai levar broken pipe, papai
 				clientPackage.gameOption = WANNA_QUIT;
 				sendMsgToServer(&clientPackage, sizeof(clientPackage));
@@ -94,20 +76,44 @@ int main(int argc, char **argv) {
 				break;
 		}
 	}
-
-
 	 return 0;
 }
 
 void printStartScreen() {
 	
-	ALLEGRO_FONT *font_big;
+	// PROJETO IP - 2017.1
+	// PROFESSOR: ACM
+	// MONITOR: MGM6
+	// ALUNOS: ~CMG ~JKSS ~JRSF ~MAFS3 ~MBGJ ~TAB ~TASM2  
+	
+	////////////////////// PARTE PARA COMEÇAR A TOCAR A MUSICA ////////////////////////////
+	int start = 90;
+	intToString(pontuacao, 321);
+	printf("%s", pontuacao);
+	sample = al_load_sample( "Resources/musiquinha.ogg" );
+	
+	if (!sample){
+	  printf( "Audio clip sample not loaded!\n" ); 
+	  return -1;
+	}
+
+	al_play_sample(sample, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
+
+	///////////////// INICIALIZAÇÃO DAS FONTES //////////////////////
+	int max_font = 200;
+	int i = 0;	
+	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);;
 	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
+
+	//////////////////////// ANIMAÇÃO DE ENTRADA DO PROGRAMA, COM NOME DO GRUPO, DESENVOLVEDORES E TITULO DO JOGO ////////////////////
 	
 	al_clear_to_color(al_map_rgb(0,0,0));
-	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, HEIGTH/2 - 30,ALLEGRO_ALIGN_CENTRE, "Grupo 3 Apresenta:");
+	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 100, ALLEGRO_ALIGN_CENTRE, "Projeto IP - 2017.1");
+	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 200, ALLEGRO_ALIGN_CENTRE, "PROFESSOR: ACM");
+	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300, ALLEGRO_ALIGN_CENTRE, "MONITOR: MGM6");
+	al_draw_text(font_small, al_map_rgb(255,255,255), 2, 400, ALLEGRO_ALIGN_CENTRE, "ALUNOS: CMG JKSS JRSF MAFS3 MBGJ TAB TASM2");
 	al_flip_display();	
-	al_rest(3.5);
+	al_rest(5);
 	
 	int start = 90;
 	
@@ -119,7 +125,66 @@ void printStartScreen() {
 	}
 }
 
+int menu(){
+
+   imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
+   int cursorPos = 0;
+   bool running = true;
+   while(running){
+	   //printar
+	   //printf("%d\n", cursorPos);
+	   al_clear_to_color(al_map_rgb(50,10,70));
+	   al_draw_bitmap(imagem, 0, 0, 0);
+	   al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, start,ALLEGRO_ALIGN_CENTRE, "TRONco");
+	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 200,ALLEGRO_ALIGN_CENTRE, "Jogar");
+	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 400,ALLEGRO_ALIGN_CENTRE, "Ranking");
+	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 600,ALLEGRO_ALIGN_CENTRE, "Sair");
+	   //cursor
+	   al_draw_circle(550, start + 25  + 200*(cursorPos + 1), 20, al_map_rgb(255,255,255), 6);
+	   al_flip_display();
+	
+	   //pegar input
+	   int tecla = 0;
+
+	   // MÁQUINA DE ESTADOS PARA MOVIMENTAÇÃO DA BOLINHA QUE SIMBOLIZA O CURSOR
+	   // RETORNA O VALOR DO CURSO QUANDO PRESSIONADO O ENTER
+	   while(!al_is_event_queue_empty(fila_eventos)){
+	  	ALLEGRO_EVENT evento;
+		al_wait_for_event(fila_eventos, &evento);
+	 	if (evento.type == ALLEGRO_EVENT_KEY_DOWN){
+		        switch(evento.keyboard.keycode){
+				case ALLEGRO_KEY_UP:
+				    tecla = 1;
+				    cursorPos--;
+				    if (cursorPos == -1) cursorPos = 2;
+				    cursorPos = cursorPos%3;
+				    break;
+				case ALLEGRO_KEY_DOWN:
+				    tecla = 2;
+				    cursorPos++;
+                    cursorPos = cursorPos%3;
+				    break;
+
+				case ALLEGRO_KEY_ENTER:
+				    tecla = 3;
+				    running = false;
+				    printf("Cursor: %d\n", cursorPos + 1);
+				    return cursorPos + 1;
+				    //jk = 0;
+				    break;
+			}
+		 }else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
+    	    running = false;
+		 }
+	  }
+   }
+   //al_rest(10.0);
+
+   al_destroy_display(display);
+}
+
 int jogo(){
+	
 	int estado_jogo = 2;
 	/*
 		0 = colocar nome se não tiver nome já cadastrado
@@ -135,20 +200,19 @@ int jogo(){
 			case 0:
 				//estado_jogo = getNome();
 				break;
-
 			case 1:
 				//estado_jogo = salinha();
 				break;
-
 			case 2:
 				estado_jogo = o_jogo();
 				break;
-
 			case 3:
 				return 0;
-
 			case 4:
 				estado_jogo = telaVitoria();
+				break;
+			case 5:
+				estado_jogo = telaDerrota();
 				break;
 		}
 	}
@@ -159,19 +223,15 @@ int o_jogo(){
 
 	bool sair = false;
 	int tecla = 0;
-	int posX = 20, posY = 20;
 	int direcao = 10, buff_direcao = 10;
-	int i, j; 
-	int sizeQuadrado = 8;// matrizQuadrado[600][480];
-	int xInicial = 2, yInicial = 2;
-	int velocidadeX = 10, velocidadeY = 10;
-	int* jogadores = (int *) malloc(4 * sizeof(int));
 
 	clientMsg clientPackage;
 	serverMsg serverPackage;
 
 	//nome = configuraNome();
-	configuraIP();
+	if(strlen(ip) == 0){
+		configuraIP();	
+	}
 	configuraNome();
 	//Esse IP irá nos conectar a "nós mesmos", apenas para efeito de testes.
 	// strcpy(ip, "127.0.0.1");
@@ -238,9 +298,12 @@ int o_jogo(){
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
 		recvMsgFromServer(&serverPackage, DONT_WAIT);
 		// printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
-		if(serverPackage.statusPlayer == 0){
+		if(serverPackage.statusPlayer == GAME_WON){
 			pontuacaoInteiro = serverPackage.pontuacao;
-			return 4;
+			return 4; // Vai para a tela de Vitoria
+		}else if(servePackage.statusPlayer == GAME_LOST){
+			pontuacaoInteiro = serverPackage.pontuacao;
+			return 5; // Vai para a tela de Derrota
 		}
 
 		//enviando a mensagem
@@ -250,95 +313,7 @@ int o_jogo(){
 		al_rest(0.1);
 		al_flip_display();
 	}
-	return 4;
-}
-
-int menu(){
-
-	////////////////////// PARTE PARA COMEÇAR A TOCAR A MUSICA ////////////////////////////
-	/// 
-	int start = 90;
-	intToString(pontuacao, 321);
-	printf("%s", pontuacao);
-	sample = al_load_sample( "Resources/musiquinha.ogg" );
-	
-		if (!sample){
-	  printf( "Audio clip sample not loaded!\n" ); 
-	  return -1;
-	}
-
-	al_play_sample(sample, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
-
-	///////////////// INICIALIZAÇÃO DAS FONTES //////////////////////
-	int max_font = 200;
-	int i = 0;	
-	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);;
-	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
-
-	//////////////////////// ANIMAÇÃO DE ENTRADA DO PROGRAMA, COM NOME DO GRUPO, DESENVOLVEDORES E TITULO DO JOGO ////////////////////
-	
-	
-
-   	if (!font_big){
-  		fprintf(stderr, "Could not load 'Tr2n.ttf'.\n");
-   	}
-
-   
-   imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
-   int cursorPos = 0;
-   bool running = true;
-   while(running){
-	   //printar
-	   //printf("%d\n", cursorPos);
-	   al_clear_to_color(al_map_rgb(50,10,70));
-	   al_draw_bitmap(imagem, 0, 0, 0);
-	   al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, start,ALLEGRO_ALIGN_CENTRE, "TRONco");
-	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 200,ALLEGRO_ALIGN_CENTRE, "Jogar");
-	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 400,ALLEGRO_ALIGN_CENTRE, "Ranking");
-	   al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, start + 600,ALLEGRO_ALIGN_CENTRE, "Sair");
-	   //cursor
-	   al_draw_circle(550, start + 25  + 200*(cursorPos + 1), 20, al_map_rgb(255,255,255), 6);
-	   al_flip_display();
-
-	
-	   //pegar input
-	   int tecla = 0;
-
-	   // MÁQUINA DE ESTADOS PARA MOVIMENTAÇÃO DA BOLINHA QUE SIMBOLIZA O CURSOR
-	   // RETORNA O VALOR DO CURSO QUANDO PRESSIONADO O ENTER
-	   while(!al_is_event_queue_empty(fila_eventos)){
-	  	ALLEGRO_EVENT evento;
-		al_wait_for_event(fila_eventos, &evento);
-	 	if (evento.type == ALLEGRO_EVENT_KEY_DOWN){
-		        switch(evento.keyboard.keycode){
-				case ALLEGRO_KEY_UP:
-				    tecla = 1;
-				    cursorPos--;
-				    if (cursorPos == -1) cursorPos = 2;
-				    cursorPos = cursorPos%3;
-				    break;
-				case ALLEGRO_KEY_DOWN:
-				    tecla = 2;
-				    cursorPos++;
-                    cursorPos = cursorPos%3;
-				    break;
-
-				case ALLEGRO_KEY_ENTER:
-				    tecla = 3;
-				    running = false;
-				    printf("Cursor: %d\n", cursorPos + 1);
-				    return cursorPos + 1;
-				    //jk = 0;
-				    break;
-			}
-		 }else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE){
-    	    running = false;
-		 }
-	  }
-   }
-   //al_rest(10.0);
-
-   al_destroy_display(display);
+	return 0; // SE CLICOU NO X DA JANELA
 }
 
 // FUNCOA PARA TRANSFORMAR INTEIRO EM UMA STRING, PRINCIPALMENTE UTILIZADA PARA PRINTAR A PONTUACAO DOS PLAYERS
@@ -375,7 +350,7 @@ int telaDerrota(){
 		    }
 		}
 	}	
-	return 3;
+	return 3; //
 }
 
 int telaVitoria(){
@@ -558,7 +533,7 @@ int ranking() {
 	clientMsg package;
 	serverMsg recv_package;
 
-	package.wantHighscore = WANT_HIGHSCORE;
+	package.gameOption = WANT_HIGHSCORE;
 	// statusConnection.response = 2;
 	sendMsgToServer(&package, sizeof(clientMsg));
 

@@ -157,8 +157,10 @@ int o_jogo(){
 	imagem = al_load_bitmap("./Resources/Tilesets/rastro_novinho_1.png");
 
 	while(!sair){
+		
 		printf("OI\n");
 		if(imagem == NULL) printf("\nOUTRA COISA\n");
+		
 		while(!al_is_event_queue_empty(fila_eventos)) {
 			printf("KEY PRESSED\n");
 			ALLEGRO_EVENT evento;
@@ -208,8 +210,8 @@ int o_jogo(){
 		//recebendo a mensagem
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
 		recvMsgFromServer(&serverPackage, DONT_WAIT);
-		// printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
-		if(serverPackage.statusPlayer == 0){
+		
+		if(serverPackage.statusPlayer == GAME_WON){
 			pontuacaoInteiro = serverPackage.pontuacao;
 			return 4;
 		}
