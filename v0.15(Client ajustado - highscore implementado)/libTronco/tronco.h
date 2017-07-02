@@ -9,9 +9,10 @@
 
 #define SIZEX 25
 #define SIZEY 45
-#define WIDTH 1450
-#define HEIGTH 815
-#define MAXCLIENTS 4 //Se ligar na biblioteca deles
+#define WIDTH 1366
+#define HEIGTH 768
+#define ROOM_SIZE 4
+#define MAXCLIENTS 12 //Se ligar na biblioteca deles
 #define SIZE_NOME 10
 
 // Opções de jogo
@@ -19,7 +20,7 @@
 #define WANNA_PLAY 2
 #define WANNA_QUIT 3
 
-// 
+//
 #define GAME_WAITING 0
 #define GAME_PLAYING 1
 #define GAME_WON 2

@@ -33,6 +33,7 @@ void intToString(char pontuacao[], int numero);
 int ranking();
 int printStartScreen();
 int telaRanking(data *highscore);
+void espera();
 
 char ip[17];
 char nome[17];
@@ -50,6 +51,11 @@ int main(int argc, char **argv) {
 	}
 
 	printStartScreen();
+
+	// Configura o ip do server quando inicia o software
+	if(strlen(ip) == 0){
+		configuraIP();
+	}
 
 	/*
 	0 = menu
@@ -114,7 +120,7 @@ int printStartScreen() {
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 100, ALLEGRO_ALIGN_CENTRE, "Projeto IP - 2017.1");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 200, ALLEGRO_ALIGN_CENTRE, "PROFESSOR: ACM");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300, ALLEGRO_ALIGN_CENTRE, "MONITOR: MGM6");
-	al_draw_text(font_small, al_map_rgb(255,255,255), 2, 400, ALLEGRO_ALIGN_LEFT, "ALUNOS: CMG JKSS JRSF \nMAFS3 MBGJ TAB TASM2");
+	al_draw_text(font_small, al_map_rgb(255,255,255), 2, 400, ALLEGRO_ALIGN_LEFT, "ALUNOS: CMG JKSS JRSF MAFS3 MBGJ TAB TASM2");
 	al_flip_display();
 	al_rest(5);
 
@@ -240,10 +246,6 @@ int o_jogo(){
 	clientMsg clientPackage;
 	serverMsg serverPackage;
 
-	//nome = configuraNome();
-	if(strlen(ip) == 0){
-		configuraIP();
-	}
 	configuraNome();
 	//Esse IP irá nos conectar a "nós mesmos", apenas para efeito de testes.
 	// strcpy(ip, "127.0.0.1");
@@ -254,6 +256,20 @@ int o_jogo(){
 	puts(nome);
 	al_clear_to_color(al_map_rgb(10,50,30));
 	al_flip_display();
+
+	// Zera a matriz de forma inicial
+	for(int i = 0; i < SIZEX; i++) {
+		for(int j = 0; j < SIZEY; j++){
+			serverPackage.matriz[i][j] = '0';
+		}
+	}
+
+	// Desenha a tela de espera
+	espera();
+
+	do {
+		recvMsgFromServer(&serverPackage, DONT_WAIT);
+	} while(serverPackage.statusPlayer == GAME_WAITING);
 
 	imagem = al_load_bitmap("./Resources/Tilesets/rastro_novinho_1.png");
 
@@ -400,6 +416,23 @@ int telaVitoria(){
 	return 3;
 }
 
+void espera() {
+	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);
+	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
+	
+	if (!font_big){
+		fprintf(stderr, "Could not load 'Tr2n.ttf'.\n");
+   	} else{
+		fprintf(stderr, "OI BEBER\n");
+   	}
+
+   	
+	imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
+   	al_draw_bitmap(imagem, 0, 0, 0);
+	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 150,ALLEGRO_ALIGN_CENTRE, "Esperando Outros Players");
+	al_flip_display();
+}
+
 void configuraIP(){
 
 	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);
@@ -507,32 +540,39 @@ void configuraNome(){
 
 int telaRanking(data *highscore) {
 
-	bool concluido = false;
+	// bool concluido = false;
+	int concluido = 0;
 
 	clientMsg clientPackage;
 	serverMsg serverPackage;
+	char txt[100] = "";
 
 	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);
 	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
 
 	imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
    	al_draw_bitmap(imagem, 0, 0, 0);
-	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 100,ALLEGRO_ALIGN_CENTRE, "Ranking - TRONco");
+	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 100,ALLEGRO_ALIGN_CENTRE, "Ranking-TronCo");
 	for(int i = 0; i < MAXCLIENTS + 1; i++){
 		intToString(pontuacao, highscore[i].score);
-		al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, highscore[i].nome);
-		al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 100, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, pontuacao);
+
+		strcpy(txt, highscore[i].nome);
+		strcat(txt, "\t");
+		strcat(txt, pontuacao);
+		// al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, highscore[i].nome);
+		// al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 100, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, pontuacao);
+		al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 100, 300 + i * 100,ALLEGRO_ALIGN_CENTRE, txt);
 	}
 	al_flip_display();
 
 	// ENQUANTO NÃO FOR PRESSIONADO O ENTER O JOGADOR CONTINUA FORA DO GAME
-	while(concluido == false){
+	while(concluido < 2){
 		while (!al_is_event_queue_empty(fila_eventos)){
 		        ALLEGRO_EVENT evento;
 		        al_wait_for_event(fila_eventos, &evento);
 		        if (evento.type == ALLEGRO_EVENT_KEY_CHAR){
 		    		if(evento.keyboard.keycode == 'C'){// O caracter 'C' significa que o Enter foi Apertado
-		            	concluido = true;
+		            	concluido += 1;
 			        }
 		    }
 		}
@@ -559,7 +599,7 @@ int ranking() {
 	printf("Highscore received\n");
 
 	printData(recvHighscore.score, 5);
-	telaRanking(recv_package.highscore);
+	telaRanking(recvHighscore.score);
 
 	return 0;
 }

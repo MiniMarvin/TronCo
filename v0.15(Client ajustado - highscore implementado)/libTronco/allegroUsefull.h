@@ -22,6 +22,8 @@
 #define JOGADOR4 al_map_rgb (139,69,19) // saddle brown
 #define CABECA_JOGADOR4 al_map_rgb (205,133,63) // peru
 
+#define DISP_H 800
+#define DISP_W 1440
 
 /**
  * @brief      Plota na tela a matriz do jogo
@@ -41,7 +43,11 @@ void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem, int dir[]);
   *             demais valores significam falha.
   */
 bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos);
+
+
 int inicializarMenu(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos);
 
+
+void get_desktop_resolution(int adapter, int *w, int *h);
 
 #endif

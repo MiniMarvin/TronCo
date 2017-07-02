@@ -1,5 +1,13 @@
 #include "allegroUsefull.h"
 
+void get_desktop_resolution(int adapter, int *w, int *h) {
+  ALLEGRO_MONITOR_INFO info;
+  al_get_monitor_info(adapter, &info);
+
+  *w = info.x2 - info.x1;
+  *h = info.y2 - info.y1;
+}
+
 bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) {
 
   if(!al_init()) {
@@ -30,26 +38,32 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
   al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
   // *display = al_create_display(windowWidth, windowHeight);
 
-  *display = al_create_display(1550, 870);
+  // *display = al_create_display(1550, 870);
+  *display = al_create_display(WIDTH, HEIGTH);
   if(!display) {
     fprintf(stderr, "failed to create display!\n");
     return -1;
   }
 
-  int windowWidth = al_get_display_width(*display);
-  int windowHeight = al_get_display_height(*display);
-  int screenWidth = 640;
-  int screenHeight = 480;
+  // int windowWidth = al_get_display_width(*display);
+  // int windowHeight = al_get_display_height(*display);
+  int screenWidth;
+  int screenHeight;
+  int windowWidth = DISP_W;
+  int windowHeight = DISP_H;
+
+  get_desktop_resolution(0, &screenWidth, &screenHeight);
+  printf("w: %d | h: %d\n", screenWidth, screenHeight);
 
   // float sx = windowWidth / (float)screenWidth;
   // float sy = windowHeight / (float)screenHeight;
-  // float sx = (float)screenWidth / windowWidth;
-  // float sy = (float)screenHeight / windowHeight;
+  float sx = (float)screenWidth / windowWidth;
+  float sy = (float)screenHeight / windowHeight;
 
-  // ALLEGRO_TRANSFORM trans;
-  // al_identity_transform(&trans);
-  // al_scale_transform(&trans, sx, sy);
-  // al_use_transform(&trans);
+  ALLEGRO_TRANSFORM trans;
+  al_identity_transform(&trans);
+  al_scale_transform(&trans, sx, sy);
+  al_use_transform(&trans);
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
@@ -74,12 +88,12 @@ bool inicializar(ALLEGRO_DISPLAY **display, ALLEGRO_EVENT_QUEUE **fila_eventos) 
       fprintf(stderr, "failed to initialize audio codecs!\n");
       return -1;
    }
-	
+
    if (!al_reserve_samples(1)){
       fprintf(stderr, "failed to reserve samples!\n");
       return -1;
    }
-	
+
 
   // Colocar IF's
   al_init_primitives_addon();
@@ -111,8 +125,8 @@ void printaMatriz(char matriz[SIZEX][SIZEY], ALLEGRO_BITMAP *imagem, int dir[]) 
           case 'a':
 
               // al_draw_bitmap_region(imagem, 64, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
-			     al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0); 
-           al_draw_bitmap_region(imagem, 128, 32, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0); 
+			     al_draw_bitmap_region(imagem, 0, 0, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
+           al_draw_bitmap_region(imagem, 128, 32, sizeQuadrado, sizeQuadrado, xInicial, yInicial, 0);
             // al_draw_filled_rectangle(xInicial, yInicial,
                                   // (xInicial + sizeQuadrado), (yInicial + sizeQuadrado),
                                   // JOGADOR1);
