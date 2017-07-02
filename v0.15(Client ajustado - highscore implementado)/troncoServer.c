@@ -30,7 +30,7 @@ void delay(unsigned int mseconds);
 int cleanMatrix(char matrix[SIZEX][SIZEY], int player);
 void printMatrix(char matrix[SIZEX][SIZEY]);
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
     FILE* score_file;
     openFile(&score_file);
@@ -109,6 +109,9 @@ int main(int argc, char **argv){
         if(retorno.status == MESSAGE_OK) {
 
           id = retorno.client_id;
+
+          // O cliente não necessariamente quer jogar
+          clientMatrix[id] = 0;
 
           if(clientPackage.gameOption == WANT_HIGHSCORE) {
             printf("Sending highscore to id: %d\n", id);
@@ -253,14 +256,14 @@ int main(int argc, char **argv){
               for(i = 0; i < MAXCLIENTS; i++) {
                 players_count += clientMatrix[i];
               }
+              printf("%d players waiting\n", players_count);
 
               // Checa se o número de players é o número mínimo de clients para jogar
-              if(players_count == MAXCLIENTS) {
+              if(players_count >= MAXCLIENTS) {
                 gameStart = 1;
                 players_alive = MAXCLIENTS;
               }
             }
-
       }
       else {
         if(players_count > 0) {

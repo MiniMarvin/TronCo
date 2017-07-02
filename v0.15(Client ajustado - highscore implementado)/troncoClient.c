@@ -114,7 +114,7 @@ int printStartScreen() {
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 100, ALLEGRO_ALIGN_CENTRE, "Projeto IP - 2017.1");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 200, ALLEGRO_ALIGN_CENTRE, "PROFESSOR: ACM");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 300, ALLEGRO_ALIGN_CENTRE, "MONITOR: MGM6");
-	al_draw_text(font_small, al_map_rgb(255,255,255), 2, 400, ALLEGRO_ALIGN_LEFT, "ALUNOS: CMG JKSS JRSF MAFS3 MBGJ TAB TASM2");
+	al_draw_text(font_small, al_map_rgb(255,255,255), 2, 400, ALLEGRO_ALIGN_LEFT, "ALUNOS: CMG JKSS JRSF \nMAFS3 MBGJ TAB TASM2");
 	al_flip_display();
 	al_rest(5);
 
@@ -305,6 +305,7 @@ int o_jogo(){
 		}
 
 		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
+		clientPackage.gameOption = WANNA_PLAY; // Atualiza para o caso do valor ser inconsistente.
 
 		//recebendo a mensagem
 		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
@@ -417,7 +418,7 @@ void configuraIP(){
 
 	ALLEGRO_EVENT evento;
 	al_wait_for_event(fila_eventos, &evento);
-	while(concluido == false){
+	while(concluido == false) {
 		while (!al_is_event_queue_empty(fila_eventos)){
 		        ALLEGRO_EVENT evento;
 		        al_wait_for_event(fila_eventos, &evento);
@@ -449,6 +450,8 @@ void configuraIP(){
 		    }
 		}
 	}
+
+	connectToServer(ip);
 }
 
 void configuraNome(){
