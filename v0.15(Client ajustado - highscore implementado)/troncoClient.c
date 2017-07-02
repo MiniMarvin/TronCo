@@ -546,7 +546,7 @@ int ranking() {
 
 	// Connection statusConnection;
 	clientMsg package;
-	serverMsg recv_package;
+	serverHighscore recvHighscore;
 
 	package.gameOption = WANT_HIGHSCORE;
 	// statusConnection.response = 2;
@@ -554,11 +554,11 @@ int ranking() {
 
 	printf("Sending Request\n");
 
-	recvMsgFromServer(&recv_package, WAIT_FOR_IT);
+	recvMsgFromServer(&recvHighscore, WAIT_FOR_IT);
 	// 	// if(msgFromServer != NO_MESSAGE) {
 	printf("Highscore received\n");
 
-	printData(recv_package.highscore, 3);
+	printData(recvHighscore.score, 5);
 	telaRanking(recv_package.highscore);
 
 	return 0;

@@ -63,10 +63,11 @@ int main(int argc, char **argv) {
     clientMsg clientPackage;
     serverMsg serverPackage;
     struct msg_ret_t retorno;
+    serverHighscore sendHighscore;
 
-    copyRankingToSend(serverPackage.highscore, score);
+    copyRankingToSend(sendHighscore.score, score);
 
-    printData(serverPackage.highscore, 3);
+    
     // inicializa com a direção inicial de cada player.
     // for (i = 0; i < MAXCLIENTS; ++i) {
     //   // buff_dir[i] = 0;
@@ -115,11 +116,12 @@ int main(int argc, char **argv) {
 
           if(clientPackage.gameOption == WANT_HIGHSCORE) {
             printf("Sending highscore to id: %d\n", id);
-            sendMsgToClient(score, sizeof(data), id);
+            sendMsgToClient(&sendHighscore, sizeof(serverHighscore), id);
           }
 
           else if(clientPackage.gameOption == WANNA_QUIT) {
             if(players_count > 0) players_count--;
+            printf("Client disconnected: %d\n", id);
             disconnectClient(id);
           }
 

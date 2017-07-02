@@ -25,6 +25,11 @@
 #define GAME_WON 2
 #define GAME_LOST 3
 
+typedef struct {
+  data score[5];
+} serverHighscore;
+
+
 typedef struct{
   int dir;
   // int wantHighscore;
@@ -39,7 +44,7 @@ typedef struct{
   int pontuacao;
   int flagVitoria; // 1 - Se foi o Vencedor 0 - se foi Perdedor
   // int status; Inteiro para dizer se o cliente esta vivo no jogo
-  data highscore[5];
+  // data highscore[5];
 }serverMsg;
 
 /**
