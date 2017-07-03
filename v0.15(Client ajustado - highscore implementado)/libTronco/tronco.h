@@ -16,6 +16,7 @@
 #define SIZE_NOME 10
 
 // Opções de jogo
+#define WANNA_NOTHING 0
 #define WANT_HIGHSCORE 1
 #define WANNA_PLAY 2
 #define WANNA_QUIT 3

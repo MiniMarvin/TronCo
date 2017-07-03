@@ -40,6 +40,25 @@ char nome[17];
 char pontuacao[5];
 int pontuacaoInteiro;
 
+void print_val(int val) {
+
+	if(val == GAME_WON) {
+		printf("Received: GAME_WON\n");
+	}
+	else if(val == GAME_WAITING) {
+		printf("Received: GAME_WAITING\n");
+	}
+	else if(val == GAME_LOST) {
+		printf("Received: GAME_LOST\n");
+	}
+	else if(val == GAME_PLAYING) {
+		printf("Received: GAME_PLAYING\n");
+	}
+	else {
+		printf("Received: %d\n");	
+	}
+}
+
 int main(int argc, char **argv) {
 	int estado = 0;
 	bool running = true;
@@ -264,18 +283,29 @@ int o_jogo(){
 		}
 	}
 
+	// Informa ao server que o player deseja jogar
+	clientPackage.gameOption = WANNA_PLAY; // Atualiza para o caso do valor ser inconsistente.
+	sendMsgToServer(&clientPackage, sizeof(clientPackage));
+
 	// Desenha a tela de espera
 	espera();
 
 	do {
-		recvMsgFromServer(&serverPackage, DONT_WAIT);
+		// continua comunicando ao server que deseja jogar
+		// clientPackage.gameOption = WANNA_PLAY; // Atualiza para o caso do valor ser inconsistente.
+		// sendMsgToServer(&clientPackage, sizeof(clientPackage));
+
+		recvMsgFromServer(&serverPackage, WAIT_FOR_IT); // espera uma resposta do server
+		print_val(serverPackage.statusPlayer);
 	} while(serverPackage.statusPlayer == GAME_WAITING);
 
 	imagem = al_load_bitmap("./Resources/Tilesets/rastro_novinho_1.png");
 
 	while(!sair){
+
 		printf("OI\n");
 		if(imagem == NULL) printf("\nOUTRA COISA\n");
+
 		while(!al_is_event_queue_empty(fila_eventos)) {
 			printf("KEY PRESSED\n");
 			ALLEGRO_EVENT evento;
@@ -323,25 +353,40 @@ int o_jogo(){
 		clientPackage.dir = direcao; // Atualiza para o caso do valor ser inconsistente.
 		clientPackage.gameOption = WANNA_PLAY; // Atualiza para o caso do valor ser inconsistente.
 
-		//recebendo a mensagem
-		//experimentem trocar WAIT_FOR_IT por DONT_WAIT...
+		// enviando a mensagem
+		sendMsgToServer(&clientPackage, sizeof(clientPackage));
+
+		// Recebendo a mensagem, experimentem trocar WAIT_FOR_IT por DONT_WAIT...
 		recvMsgFromServer(&serverPackage, DONT_WAIT);
 		// printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
+		
+		print_val(serverPackage.statusPlayer);
+
 		if(serverPackage.statusPlayer == GAME_WON){
 			pontuacaoInteiro = serverPackage.pontuacao;
+
+			clientPackage.gameOption = WANNA_NOTHING; // Atualiza para o caso do valor ser inconsistente.
+			printf("\n\nEu ganhei!!!\n\n");
+
+			sendMsgToServer(&clientPackage, sizeof(clientPackage)); // informa ao server que não quer fazer nada.
+
 			return 4; // Vai para a tela de Vitoria
-		}else if(serverPackage.statusPlayer == GAME_LOST){
+		} 
+		else if(serverPackage.statusPlayer == GAME_LOST){
 			pontuacaoInteiro = serverPackage.pontuacao;
+
+			printf("\n\nReceived: %d\n\n", serverPackage.statusPlayer);
+
+			clientPackage.gameOption = WANNA_NOTHING; // Atualiza para o caso do valor ser inconsistente.
+			sendMsgToServer(&clientPackage, sizeof(clientPackage)); // informa ao server que não quer fazer nada.
 			return 5; // Vai para a tela de Derrota
 		}
-
-		//enviando a mensagem
-		sendMsgToServer(&clientPackage, sizeof(clientPackage));
 
 		printaMatriz(serverPackage.matriz, imagem, serverPackage.dir);
 		al_rest(0.1);
 		al_flip_display();
 	}
+
 	return 0; // SE CLICOU NO X DA JANELA
 }
 
@@ -350,9 +395,10 @@ void intToString(char pontuacao[], int numero){
 	sprintf(pontuacao, "%d", numero);
 }
 
-int telaDerrota(){
+int telaDerrota() {
 
 	bool concluido = false;
+	char pontuacao[10] = "";
 
 	ALLEGRO_FONT *font_big = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",200,0);
 	ALLEGRO_FONT *font_small = al_load_ttf_font("Resources/Fonts/Tr2n.ttf",60,0);
@@ -363,7 +409,9 @@ int telaDerrota(){
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 350,ALLEGRO_ALIGN_CENTRE, "Voce perdeu a partida,");
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 450,ALLEGRO_ALIGN_CENTRE, nome);
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 - 100, 550,ALLEGRO_ALIGN_CENTRE, "E sua pontuacao foi: ");
-	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 350, 550,ALLEGRO_ALIGN_CENTRE, "310");
+	// al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 350, 550,ALLEGRO_ALIGN_CENTRE, "310");
+	intToString(pontuacao, pontuacaoInteiro);
+	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2 + 350, 550,ALLEGRO_ALIGN_CENTRE, pontuacao);
 	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 750,ALLEGRO_ALIGN_CENTRE, "PRESSIONE ENTER PARA SAIR");
 	al_flip_display();
 
@@ -429,7 +477,7 @@ void espera() {
    	
 	imagem = al_load_bitmap("./Resources/Tilesets/fundo.jpg");
    	al_draw_bitmap(imagem, 0, 0, 0);
-	al_draw_text(font_big, al_map_rgb(255,255,255), WIDTH/2, 150,ALLEGRO_ALIGN_CENTRE, "Esperando Outros Players");
+	al_draw_text(font_small, al_map_rgb(255,255,255), WIDTH/2, 150,ALLEGRO_ALIGN_CENTRE, "Esperando Outros Players");
 	al_flip_display();
 }
 
