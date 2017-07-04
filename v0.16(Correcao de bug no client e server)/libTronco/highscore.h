@@ -38,7 +38,7 @@ int fileLength(FILE* arq);
  *
  * @return     { description_of_the_return_value }
  */
-FILE* organizateData(FILE* arq);
+void organizateData(FILE** arq);
 
 
 
@@ -50,7 +50,7 @@ FILE* organizateData(FILE* arq);
  *                          gravadas no arquivo
  * @param[in]  limit        Limite de highscores que serão salvos no arquivo highScore.txt
  */
-void saveData(FILE* arq, data* banco_Dados, int limit);
+void saveData(FILE** arq, data* banco_Dados, int limit);
 
 
 /**

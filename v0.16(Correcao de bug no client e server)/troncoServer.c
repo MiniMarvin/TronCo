@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
 	data* score;
 	data save;
 
+
 	char corpo = 'a';
 	char cabeca = 'A';
 
@@ -58,6 +59,7 @@ int main(int argc, char **argv) {
 	for (i = 0; i < CLIENTS_LIMIT; i++) {
 		clientMatrix[i] = 0;
 	}
+
 
 	clientMsg clientPackage;
 	serverMsg serverPackage;
@@ -114,9 +116,17 @@ int main(int argc, char **argv) {
 
 			if(clientPackage.gameOption == WANT_HIGHSCORE) {
 				printf("Sending highscore to id: %d\n", id);
+				organizateData(&score_file);
 				readData(score_file, &score);
 				copyRankingToSend(sendHighscore.score, score);
+				sendHighscore.fileLength = fileLength(score_file);
+				if(sendHighscore.fileLength > 5) 
+					sendHighscore.fileLength = 5;				
+
+				printf("Length: %d\n", sendHighscore.fileLength);
+				printData(sendHighscore.score, sendHighscore.fileLength);
 				sendMsgToClient(&sendHighscore, sizeof(serverHighscore), id);
+			
 			}
 
 			else if(clientPackage.gameOption == WANNA_QUIT) {
@@ -187,6 +197,13 @@ int main(int argc, char **argv) {
 
 
 						serverPackage.statusPlayer = GAME_LOST;
+
+						printf("\nPlayer is dead!\n");
+						printf("Name: %s\n", clientPackage.nome);
+						printf("Score: %d\n", serverPackage.pontuacao);
+
+							
+
 						if(players_alive > 0) {
 							players_alive--; // Reduz o número de players ainda vivos
 						}
@@ -196,9 +213,12 @@ int main(int argc, char **argv) {
 						//#ifdef RESTART_GAME
 						// Remove o rastro do jogador do jogo.
 						serverPackage.pontuacao = cleanMatrix(matrizJogo, id);
+
 						strcpy(save.nome, clientPackage.nome);
 						save.score = serverPackage.pontuacao;
-						saveData(score_file, &save, 1);
+						printf("Saving -> Name: %s Score: %d\n", save.nome, save.score);
+						saveData(&score_file, &save, 1);
+						
 
 						// Recoloca o player em sua posição original do tabuleiro
 						// e remove o bit dele da variável de players vivos
@@ -253,6 +273,11 @@ int main(int argc, char **argv) {
 							serverPackage.statusPlayer = GAME_WON;
 							serverPackage.pontuacao = cleanMatrix(matrizJogo, id);
 
+							//Responsável por salvar a pontuação
+							strcpy(save.nome, clientPackage.nome);
+							save.score = serverPackage.pontuacao;
+							printf("Saving -> Name: %s Score: %d\n", save.nome, save.score);
+							saveData(&score_file, &save, 1);	
 							// força o jogo todo a resetar
 							gameStart = 0;
 							players_alive = 0;
@@ -264,7 +289,9 @@ int main(int argc, char **argv) {
 							for(i = 0; i < MAXCLIENTS; i++) {
 								clientMatrix[i] = 0;
 							}
+							sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
 						}
+						continue;
 					}
 
 					puts("Enviando respostas...\n");
@@ -309,7 +336,7 @@ int main(int argc, char **argv) {
 				}
 
 				printf("%d players waiting\n", players_count);
-				printf("Sent value: ", serverPackage.statusPlayer);
+				printf("Sent value: %d\n", serverPackage.statusPlayer);
 				sendMsgToClient(&serverPackage, sizeof(serverMsg), id);
 			}
 			else {
